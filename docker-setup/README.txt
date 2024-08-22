@@ -1,7 +1,7 @@
 This  simple script resolves the task below:
 
- - Up a Drupal website using docker commands (not docker compose).
- - Acceptance criteria: a bash script (could be named drupal_setup_docker.sh) that set up the Drupal site under containers + volumes + networks.
+ - Up a Drupal website using docker commands (not docker-compose).
+ - Script sets up the Drupal site under containers + volumes + networks.
 
 Steps for configuring drupal_setup_docker.sh:
 	
