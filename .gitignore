@@ -61,4 +61,4 @@
 /drupal.phar
 /drupal
 
-
+/docker-compose-build/drupal/vendor
