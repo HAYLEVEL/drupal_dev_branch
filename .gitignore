@@ -61,5 +61,5 @@
 /drush
 /drupal.phar
 /drupal
-
+/docker-compose-build
 /docker-compose-build/drupal/vendor
