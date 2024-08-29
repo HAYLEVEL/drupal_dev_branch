@@ -11,6 +11,7 @@ services:
       MYSQL_TRANSACTION_ISOLATION: READ-COMMITTED
     volumes:
       - /d4d/back:/docker-entrypoint-initdb.d
+      - mariadb-datavolume:/var/lib/mysql
 
   php:
     image: wodby/drupal-php:$PHP_TAG
@@ -45,4 +46,5 @@ networks:
       name: traefik-net
 
 volumes:
-  files:
+  mariadb-datavolume:
+    driver: local
