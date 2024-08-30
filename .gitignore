@@ -22,7 +22,8 @@
 /web/sites/*/cache
 
 # Ignore drupal core (if not versioning drupal sources)
-/web/modules
+/web/modules/contrib
+/web/themes/contrib
 /web/vendor
 /web/core
 /web/modules/README.txt
