@@ -25,17 +25,18 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      - name: Add GitHub to Known Hosts
+        run: |
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "ssh-keyscan github.com >> ~/.ssh/known_hosts"
+
       - name: Deploy to VM
         run: |
           ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'EOF'
             set -e
 
-            # Add GitHub to known hosts to avoid host key verification issue
-            ssh-keyscan github.com >> ~/.ssh/known_hosts
-
             # Clone the repository
             cd /var/www/html
-            runuser -u www-data -- git pull
+            git pull
 
             # Install dependencies (e.g., via Composer)
             chmod -R 755 /var/www/
