@@ -1,7 +1,16 @@
 #!/bin/sh
 
-# Run PHPCS on the specified directories and file types
-vendor/bin/phpcs web/themes/custom/ web/modules/custom/ --extensions=php,install,module,theme
+# Get a list of changed files that match the specified extensions
+CHANGED_FILES=$(git diff --cached --name-only | grep -E '\.php$|\.install$|\.module$|\.theme$')
+
+# If there are no relevant changed files, skip PHPCS
+if [ -z "$CHANGED_FILES" ]; then
+  echo "No PHP-related files have changed, skipping PHPCS."
+  exit 0
+fi
+
+# Run PHPCS on the changed files
+vendor/bin/phpcs $CHANGED_FILES --extensions=php,install,module,theme
 
 # Capture the exit code of PHPCS
 PHPCS_STATUS=$?
