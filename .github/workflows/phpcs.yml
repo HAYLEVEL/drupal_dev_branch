@@ -1,0 +1,29 @@
+name: PHPCS Check
+
+# Triggers the workflow on push, commit, and pull request events
+on:
+  push:
+    branches:
+      - '**' # This will trigger on any branch push
+  pull_request:
+    branches:
+      - '**' # This will trigger on any branch PR creation or updates
+
+jobs:
+  phpcs:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+
+    - name: Install Composer dependencies
+      run: composer install --prefer-dist --no-progress --no-suggest
+
+    - name: Run PHPCS
+      run: vendor/bin/phpcs web/themes/custom/ web/modules/custom/ --extensions=php,install,module,theme

@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Run PHPCS on the specified directories and file types
+vendor/bin/phpcs web/themes/custom/ web/modules/custom/ --extensions=php,install,module,theme
+
+# Capture the exit code of PHPCS
+PHPCS_STATUS=$?
+
+# If PHPCS returns any errors, prevent the commit
+if [ $PHPCS_STATUS -ne 0 ]; then
+  echo "PHPCS found coding standard violations. Please fix them before committing."
+  exit 1
+fi
+
+exit 0
