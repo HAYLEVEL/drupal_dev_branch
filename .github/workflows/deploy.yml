@@ -1,0 +1,45 @@
+name: Deploy to Remote Server
+
+on:
+  push:
+    branches:
+      - 'master'
+
+
+#  workflow_run:
+#    workflows: [PHPCS Check]
+#    types:
+#      - completed
+
+jobs:
+  deploy_to_remote:
+    runs-on: ubuntu-latest
+   # if: ${{ github.event.workflow_run.conclusion == 'success' && github.ref == 'refs/heads/master'}}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to VM
+        run: |
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'EOF'
+            set -e
+
+            # Clone the repository
+            cd /var/www/html
+            git pull
+
+            # Install dependencies (e.g., via Composer)
+            chmod -R 755 /var/www/
+            chown www-data:www-data -R /var/www/html
+            runuser -u www-data -- composer install --no-dev --optimize-autoloader
+
+        env:
+          SSH_USER: ${{ secrets.REMOTE_USER }}
+          SSH_HOST: ${{ secrets.REMOTE_SERVER }}
+
