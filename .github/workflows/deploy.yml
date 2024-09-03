@@ -3,7 +3,7 @@ name: Deploy to Remote Server
 on:
   push:
     branches:
-      - 'R8492_Configuration_of_CD'
+      - 'testCD'
 
 
 #  workflow_run:
@@ -35,16 +35,9 @@ jobs:
             REPO_URL="git@github.com:liqxDev/drupal_task.git"
             BRANCH="master"
 
-            # Clean up the old deployment if it exists
-            if [ -d "$DEPLOY_DIR" ]; then
-              rm -rf "$DEPLOY_DIR"
-            fi
-
             # Clone the repository
-            git clone -b $BRANCH $REPO_URL $DEPLOY_DIR
-            # Navigate to the deployment directory
-            cd /var/www/html || exit
-            composer update
+            cd /var/www/html
+            git pull
 
             # Install dependencies (e.g., via Composer)
             chmod -R 755 /var/www/
