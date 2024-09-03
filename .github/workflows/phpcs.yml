@@ -1,5 +1,6 @@
 name: PHPCS Check
 
+
 # Triggers the workflow on push, commit, and pull request events
 on:
   push:
