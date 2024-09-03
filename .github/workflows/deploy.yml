@@ -37,7 +37,7 @@ jobs:
 
             # Clone the repository
             cd /var/www/html
-            git pull
+            runuser -u www-data -- git pull
 
             # Install dependencies (e.g., via Composer)
             chmod -R 755 /var/www/
