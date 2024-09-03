@@ -25,10 +25,6 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Add GitHub to Known Hosts
-        run: |
-          ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "ssh-keyscan github.com >> ~/.ssh/known_hosts"
-
       - name: Deploy to VM
         run: |
           ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'EOF'
