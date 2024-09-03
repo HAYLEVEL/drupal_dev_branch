@@ -30,10 +30,8 @@ jobs:
           ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'EOF'
             set -e
 
-            # Variables
-            DEPLOY_DIR="/var/www/html"
-            REPO_URL="git@github.com:liqxDev/drupal_task.git"
-            BRANCH="master"
+            # Add GitHub to known hosts to avoid host key verification issue
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
 
             # Clone the repository
             cd /var/www/html
