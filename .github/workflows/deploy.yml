@@ -38,7 +38,7 @@ jobs:
 
             # Install dependencies (e.g., via Composer)
             composer install --no-dev --optimize-autoloader
-            vendor/bin/drush deploy -v -y
+            vendor/bin/drush deploy
 
         env:
           SSH_USER: ${{ secrets.REMOTE_USER }}
