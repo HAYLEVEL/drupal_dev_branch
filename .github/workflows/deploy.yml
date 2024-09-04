@@ -3,7 +3,7 @@ name: Deploy to Remote Server
 on:
   push:
     branches:
-      - 'master'
+      - 'R8492_Configuration_of_CD'
 
 
 #  workflow_run:
@@ -30,14 +30,15 @@ jobs:
           ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'EOF'
             set -e
 
-            # Clone the repository
-            cd /var/www/html
-            git pull
+            # Update files 
+            cd ~/drupal_task
+            git pull origin master
+            cp -ru * /var/www/html
+            cd /var/www/html || exit
 
             # Install dependencies (e.g., via Composer)
-            chmod -R 755 /var/www/
-            chown www-data:www-data -R /var/www/html
-            runuser -u www-data -- composer install --no-dev --optimize-autoloader
+            composer install --no-dev --optimize-autoloader
+            vendor/bin/drush deploy -v -y
 
         env:
           SSH_USER: ${{ secrets.REMOTE_USER }}
