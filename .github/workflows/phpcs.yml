@@ -37,7 +37,7 @@ jobs:
     - name: Get list of changed files
       id: changed_files
       run: |
-        git diff --name-only --diff-filter=d origin/${{ github.base_ref }}...${{ github.head_ref }} -- 'web/themes/custom/*' 'web/modules/custom/*' > changed_files.txt
+        git diff --name-only --diff-filter=d ${{ steps.determine_base_ref.outputs.BASE_REF }} -- 'web/themes/custom/*' 'web/modules/custom/*' > changed_files.txt
         cat changed_files.txt
 
     - name: Run PHPCS on changed files
