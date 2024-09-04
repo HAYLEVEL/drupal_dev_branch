@@ -44,6 +44,7 @@ jobs:
             git diff --name-only --diff-filter=d HEAD^ -- 'web/themes/custom/*' 'web/modules/custom/*' > changed_files.txt
           else
             echo "First commit or orphan branch, no previous commit to compare to." > changed_files.txt
+            exit 0;
           fi
         fi
         cat changed_files.txt
