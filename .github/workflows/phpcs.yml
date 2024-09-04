@@ -34,20 +34,15 @@ jobs:
           echo "::set-output name=BASE_REF::${{ github.sha }}^"
         fi
 
-    - name: Get list of changed files
-      id: changed_files
-      run: |
-        if [ "${{ github.event_name }}" = "pull_request" ]; then
-          git diff --name-only --diff-filter=d ${{ github.event.pull_request.base.sha }} -- 'web/themes/custom/*' 'web/modules/custom/*' > changed_files.txt
-        else
-          if git rev-parse HEAD^ >/dev/null 2>&1; then
-            git diff --name-only --diff-filter=d HEAD^ -- 'web/themes/custom/*' 'web/modules/custom/*' > changed_files.txt
-          else
-            echo "First commit or orphan branch, no previous commit to compare to."
-            exit 0;
-          fi
-        fi
-        cat changed_files.txt
+   - name: Get changed files and write the outputs to a Txt file
+     id: changed-files-write-output-files-txt
+     uses: tj-actions/changed-files@v45
+     with:
+       write_output_files: true
+
+   - name: Verify the contents of the .github/outputs/added_files.txt file
+     run: |
+       cat .github/outputs/added_files.txt
 
     - name: Run PHPCS on changed files
       run: |
