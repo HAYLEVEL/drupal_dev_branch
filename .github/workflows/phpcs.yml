@@ -26,14 +26,14 @@ jobs:
       run: composer install --prefer-dist --no-progress --no-suggest
 
     - name: Check if Prisma schema changed
-        id: changed-files
-        uses: tj-actions/changed-files@v44
+      id: changed-files
+      uses: tj-actions/changed-files@v44
 
-      - name: List all changed files
-        run: |
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            echo "$file was changed"
-          done
+    - name: List all changed files
+      run: |
+        for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          echo "$file was changed"
+        done
 
     - name: Run PHPCS on changed files
       run: |
