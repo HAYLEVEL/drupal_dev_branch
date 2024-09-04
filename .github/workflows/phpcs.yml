@@ -46,6 +46,7 @@ jobs:
             echo "First commit or orphan branch, no previous commit to compare to." > changed_files.txt
           fi
         fi
+        cat changed_files.txt
 
     - name: Run PHPCS on changed files
       run: |
