@@ -5,7 +5,7 @@
  * Documentation for pathauto API.
  */
 
-use Drupal\Core\Language\Language;
+suse Drupal\Core\Language\Language;
 
 /**
  * @todo Update for 8.x-1.x
