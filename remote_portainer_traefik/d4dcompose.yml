@@ -10,7 +10,7 @@ services:
       MYSQL_PASSWORD: $DB_PASSWORD
       MYSQL_TRANSACTION_ISOLATION: READ-COMMITTED
     volumes:
-      - /d4d/back:/docker-entrypoint-initdb.d
+      - /var/www/html/back_sql:/docker-entrypoint-initdb.d
       - mariadb-datavolume:/var/lib/mysql
 
   php:
@@ -21,7 +21,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      - /d4d/html:/var/www/html:cached
+      - /var/www/html:/var/www/html:cached
 
   nginx:
     image: wodby/nginx:$NGINX_TAG
@@ -35,7 +35,7 @@ services:
       NGINX_SERVER_ROOT: /var/www/html/web
       NGINX_VHOST_PRESET: $NGINX_VHOST_PRESET
     volumes:
-      - /d4d/html:/var/www/html:cached
+      - /var/www/html:/var/www/html:cached
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.nginx.rule=Host(`www.drupalliqx.pp.ua`)"
