@@ -43,7 +43,7 @@ jobs:
           if git rev-parse HEAD^ >/dev/null 2>&1; then
             git diff --name-only --diff-filter=d HEAD^ -- 'web/themes/custom/*' 'web/modules/custom/*' > changed_files.txt
           else
-            echo "First commit or orphan branch, no previous commit to compare to." > changed_files.txt
+            echo "First commit or orphan branch, no previous commit to compare to."
             exit 0;
           fi
         fi
