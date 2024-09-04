@@ -47,8 +47,8 @@ jobs:
 
     - name: Run PHPCS on changed files
       run: |
-        if [[ -s changed_files.txt && $(cat changed_files.txt | wc -l) -gt 0 ]]; then
-          vendor/bin/phpcs $(cat changed_files.txt) --extensions=php,install,module,theme
+        if [[ "${{ steps.changed-files.outputs.any_changed }}" == 'true' ]]; then
+          vendor/bin/phpcs ${{ steps.changed-files.outputs.all_changed_files }} --extensions=php,install,module,theme
         else
           echo "No PHP files changed. Skipping PHPCS."
         fi
