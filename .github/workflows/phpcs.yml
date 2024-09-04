@@ -37,12 +37,19 @@ jobs:
     - name: Get list of changed files
       id: changed_files
       run: |
-        git diff --name-only --diff-filter=d ${{ steps.determine_base_ref.outputs.BASE_REF }} -- 'web/themes/custom/*' 'web/modules/custom/*' > changed_files.txt
-        cat changed_files.txt
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          git diff --name-only --diff-filter=d ${{ github.event.pull_request.base.sha }} -- 'web/themes/custom/*' 'web/modules/custom/*' > changed_files.txt
+        else
+          if git rev-parse HEAD^ >/dev/null 2>&1; then
+            git diff --name-only --diff-filter=d HEAD^ -- 'web/themes/custom/*' 'web/modules/custom/*' > changed_files.txt
+          else
+            echo "First commit or orphan branch, no previous commit to compare to." > changed_files.txt
+          fi
+        fi
 
     - name: Run PHPCS on changed files
       run: |
-        if [[ -s changed_files.txt ]]; then
+        if [[ -s changed_files.txt && $(cat changed_files.txt | wc -l) -gt 0 ]]; then
           vendor/bin/phpcs $(cat changed_files.txt) --extensions=php,install,module,theme
         else
           echo "No PHP files changed. Skipping PHPCS."
