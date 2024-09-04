@@ -25,5 +25,17 @@ jobs:
     - name: Install Composer dependencies
       run: composer install --prefer-dist --no-progress --no-suggest
 
-    - name: Run PHPCS
-      run: vendor/bin/phpcs web/themes/custom/ web/modules/custom/ --extensions=php,install,module,theme
+    - name: Get list of changed files
+      id: changed_files
+      run: |
+        git fetch origin ${{ github.base_ref }} --depth=1
+        git diff --name-only --diff-filter=d origin/${{ github.base_ref }}...${{ github.head_ref }} -- 'web/themes/custom/*' 'web/modules/custom/*' > changed_files.txt
+        cat changed_files.txt
+
+    - name: Run PHPCS on changed files
+      run: |
+        if [[ -s changed_files.txt ]]; then
+          vendor/bin/phpcs $(cat changed_files.txt) --extensions=php,install,module,theme
+        else
+          echo "No PHP files changed. Skipping PHPCS."
+        fi
