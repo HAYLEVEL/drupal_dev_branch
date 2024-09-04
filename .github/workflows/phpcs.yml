@@ -34,15 +34,15 @@ jobs:
           echo "::set-output name=BASE_REF::${{ github.sha }}^"
         fi
 
-   - name: Get changed files and write the outputs to a Txt file
-     id: changed-files-write-output-files-txt
-     uses: tj-actions/changed-files@v45
-     with:
-       write_output_files: true
+    - name: Get changed files and write the outputs to a Txt file
+      id: changed-files-write-output-files-txt
+      uses: tj-actions/changed-files@v45
+      with:
+        write_output_files: true
 
-   - name: Verify the contents of the .github/outputs/added_files.txt file
-     run: |
-       cat .github/outputs/added_files.txt
+    - name: Verify the contents of the .github/outputs/added_files.txt file
+      run: |
+        cat .github/outputs/added_files.txt
 
     - name: Run PHPCS on changed files
       run: |
