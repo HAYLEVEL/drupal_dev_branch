@@ -31,11 +31,8 @@ jobs:
             set -e
 
             # Update files 
-            cd ~/drupal_task
-            git pull origin master
-            cp -ru * /var/www/html
             cd /var/www/html || exit
-
+            git pull origin maste
             # Install dependencies (e.g., via Composer)
             composer install --no-dev --optimize-autoloader
             vendor/bin/drush deploy
