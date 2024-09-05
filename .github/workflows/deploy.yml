@@ -32,7 +32,7 @@ jobs:
 
             # Update files 
             cd /var/www/html || exit
-            git pull origin maste
+            git pull origin master
             # Install dependencies (e.g., via Composer)
             composer install --no-dev --optimize-autoloader
             vendor/bin/drush deploy
