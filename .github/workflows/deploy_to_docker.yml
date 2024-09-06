@@ -32,16 +32,22 @@ jobs:
 
             # Update files 
             cd /var/www/html || exit
+            echo "Starting pulling--------------------------------------------------------------------"
             git pull origin master
+            echo "Pull from remote success------------------------------------------------------------"
 
             # Install dependencies (e.g., via Composer)
+            echo "Starting install dependencies process via composer----------------------------------"
             composer install --no-dev --optimize-autoloader
+            echo "Installing success------------------------------------------------------------------"
 
             #Deploy to docker stack
+            echo "Deploying to Docker stack-----------------------------------------------------------"
             docker exec php bash -c "
               cd /var/www/html
               vendor/bin/drush deploy
-           "
+            "
+            echo "Deploying success-------------------------------------------------------------------"
         env:
           SSH_USER: ${{ secrets.REMOTE_USER }}
           SSH_HOST: ${{ secrets.REMOTE_SERVER }}
