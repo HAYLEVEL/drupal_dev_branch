@@ -4,7 +4,7 @@ services:
     container_name: "traefik"
     environment:
       - CLOUDFLARE_EMAIL=s.vlasiuk@dev-branch.com
-      - CLOUDFLARE_API_KEY=70f05b034b53c7400a76f037d9eda69537b64
+      - CLOUDFLARE_API_KEY=a635c740470766599423df6390c1848a14c73
     command:
       - "--log.level=DEBUG"
       - "--api.insecure=true"
