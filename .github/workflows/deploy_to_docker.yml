@@ -1,4 +1,4 @@
-name: Deploy to Remote Server
+name: Deploy to Docker
 
 on:
   push:
@@ -25,7 +25,7 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Deploy to VM
+      - name: Deploy to Docker
         run: |
           ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'EOF'
             set -e
