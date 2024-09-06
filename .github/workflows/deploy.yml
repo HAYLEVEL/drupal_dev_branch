@@ -34,15 +34,15 @@ jobs:
             cd /var/www/html || exit
             echo "Starting pulling"
             git pull origin master
-            echo "Pull from remote success"
+            echo "Pull from remote success----------------------------------------------"
 
             # Install dependencies (e.g., via Composer)
-            echo "Starting install dependencies process via composer"
+            echo "Starting install dependencies process via composer--------------------"
             composer install --no-dev --optimize-autoloader
-            echo "Installing success"
-            echo "Start deploy via drush"
+            echo "Installing success----------------------------------------------------"
+            echo "Start deploy via drush------------------------------------------------"
             vendor/bin/drush deploy
-            echo "Deployment success"
+            echo "Deployment success----------------------------------------------------"
 
         env:
           SSH_USER: ${{ secrets.REMOTE_USER }}
