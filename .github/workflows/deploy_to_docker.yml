@@ -1,0 +1,47 @@
+name: Deploy to Remote Server
+
+on:
+  push:
+    branches:
+      - 'R8475_Deployment_to_Docker'
+
+
+#  workflow_run:
+#    workflows: [PHPCS Check]
+#    types:
+#      - completed
+
+jobs:
+  deploy_to_remote:
+    runs-on: ubuntu-latest
+   # if: ${{ github.event.workflow_run.conclusion == 'success' && github.ref == 'refs/heads/master'}}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to VM
+        run: |
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'EOF'
+            set -e
+
+            # Update files 
+            cd /var/www/html || exit
+            git pull origin master
+
+            # Install dependencies (e.g., via Composer)
+            composer install --no-dev --optimize-autoloader
+
+            #Deploy to docker stack
+            docker exec php bash -c "
+              cd /var/www/html
+              vendor/bin/drush deploy
+           "
+        env:
+          SSH_USER: ${{ secrets.REMOTE_USER }}
+          SSH_HOST: ${{ secrets.REMOTE_SERVER }}
