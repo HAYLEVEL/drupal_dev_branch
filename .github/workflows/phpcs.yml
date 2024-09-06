@@ -25,5 +25,30 @@ jobs:
     - name: Install Composer dependencies
       run: composer install --prefer-dist --no-progress --no-suggest
 
-    - name: Run PHPCS
-      run: vendor/bin/phpcs web/themes/custom/ web/modules/custom/ --extensions=php,install,module,theme
+    - name: Check files changed
+      id: changed-files
+      uses: tj-actions/changed-files@v45
+      with:
+        files: |
+          web/themes/custom/**/*.php
+          web/themes/custom/**/*.install
+          web/themes/custom/**/*.module
+          web/themes/custom/**/*.theme
+          web/modules/custom/**/*.php
+          web/modules/custom/**/*.install
+          web/modules/custom/**/*.module
+          web/modules/custom/**/*.theme
+
+    - name: List all changed files
+      run: |
+        for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          echo "$file was changed"
+        done
+
+    - name: Run PHPCS on changed files
+      run: |
+        if [[ "${{ steps.changed-files.outputs.any_changed }}" == 'true' ]]; then
+          vendor/bin/phpcs ${{ steps.changed-files.outputs.all_changed_files }} --extensions=php,install,module,theme
+        else
+          echo "No PHP files changed. Skipping PHPCS."
+        fi
