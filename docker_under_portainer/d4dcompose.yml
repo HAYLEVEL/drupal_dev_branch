@@ -24,10 +24,6 @@ services:
       - /var/www/html:/var/www/html:cached
       - ~/.ssh/id_rsa:/home/wodby/.ssh/id_rsa:ro
       - ~/.ssh/id_rsa.pub:/home/wodby/.ssh/id_rsa.pub:ro
-    entrypoint: >
-      sh -c "
-      ssh-keyscan github.com >> /home/wodby/.ssh/known_hosts
-      "
 
   nginx:
     image: wodby/nginx:$NGINX_TAG

@@ -36,5 +36,6 @@ jobs:
 
 
         run: |
+          portainerssh php -c "ssh-keyscan github.com >> /home/wodby/.ssh/known_hosts"
           portainerssh php -c "git pull origin master" -w "/var/www/html"
           portainerssh php -c "/bin/sh -c 'composer install && vendor/bin/drush deploy -v -y'" -w "/var/www/html"
