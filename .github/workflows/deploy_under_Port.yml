@@ -1,0 +1,41 @@
+name: Deploy to Portainer via portainerssh
+
+on:
+  push:
+    branches:
+      - 'R8470_Docker_under_Portainer'
+
+
+#  workflow_run:
+#    workflows: [PHPCS Check]
+#    types:
+#      - completed
+
+jobs:
+  deploy_to_remote:
+    runs-on: ubuntu-latest
+   # if: ${{ github.event.workflow_run.conclusion == 'success' && github.ref == 'refs/heads/master'}}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install portainerssh
+        run: |
+          wget https://github.com/devbranch-vadym/portainerssh/releases/download/v1.7.0/portainerssh-linux-amd64-1.7.0.tar.gz
+          tar -xvzf portainerssh-linux-amd64-1.7.0.tar.gz
+          mv portainerssh /usr/local/bin/
+          chmod +x /usr/local/bin/portainerssh
+
+      - name: Pull and Deploy
+        env:
+          PORTAINER_API_URL: ${{ secrets.PORTAINER_API_URL }}
+          PORTAINER_USER: ${{ secrets.PORTAINER_USER }}
+          PORTAINER_PASSWORD: ${{ secrets.PORTAINER_PASSWORD }}
+          PORTAINER_API_KEY: ${{ secrets.PORTAINER_API_KEY }}
+
+
+        run: |
+          portainerssh php -c "ssh-keyscan github.com >> /home/wodby/.ssh/known_hosts"
+          portainerssh php -c "git pull origin master" -w "/var/www/html"
+          portainerssh php -c "/bin/sh -c 'composer install && vendor/bin/drush deploy -v -y'" -w "/var/www/drupal"
