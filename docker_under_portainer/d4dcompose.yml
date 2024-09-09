@@ -25,7 +25,7 @@ services:
 
   nginx:
     image: wodby/nginx:$NGINX_TAG
-    container_name: "${PROJECT_NAME}_nginx"
+    container_name: "nginx"
     depends_on:
       - php
     environment:
