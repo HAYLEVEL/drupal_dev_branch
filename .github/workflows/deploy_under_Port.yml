@@ -3,7 +3,7 @@ name: Deploy to Portainer via portainerssh
 on:
   push:
     branches:
-      - 'R8470_Docker_under_Portainer'
+      - 'R8480_Docker_under_Portainer'
 
 
 #  workflow_run:
