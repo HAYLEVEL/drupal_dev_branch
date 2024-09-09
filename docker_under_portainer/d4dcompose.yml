@@ -22,8 +22,7 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - /var/www/html:/var/www/html:cached
-      - ~/.ssh/id_rsa:/home/wodby/.ssh/id_rsa:ro
-      - ~/.ssh/id_rsa.pub:/home/wodby/.ssh/id_rsa.pub:ro
+      - php_ssh:/home/wodby/.ssh
 
   nginx:
     image: wodby/nginx:$NGINX_TAG
@@ -51,4 +50,6 @@ networks:
 
 volumes:
   mariadb-datavolume:
+    driver: local
+  php_ssh:
     driver: local
