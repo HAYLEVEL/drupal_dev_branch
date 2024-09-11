@@ -1,0 +1,1 @@
+{"version":3,"sources":["node/layout-desktop.scss"],"names":[],"mappings":"AAAA,aACE,gBAEF,uBACE,uBACA","file":"layout-desktop.css","sourcesContent":[".top-content {\n  padding: 0 114px;\n}\n.node--content-wrapper {\n  max-inline-size: 1220px;\n  padding: 0 114px;\n}\n"]}

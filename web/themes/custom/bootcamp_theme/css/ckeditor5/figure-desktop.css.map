@@ -1,0 +1,1 @@
+{"version":3,"sources":["ckeditor5/figure-desktop.scss"],"names":[],"mappings":"AACE,wCACE,mBAEF,yCACE","file":"figure-desktop.css","sourcesContent":[".ckeditor5-html-field figure {\n  &.align-left {\n    float: inline-start;\n  }\n  &.align-right {\n    float: inline-end;\n  }\n}\n"]}
