@@ -2,7 +2,7 @@ name: 'Linno Theme'
 type: theme
 'base theme': false
 version: 1.0.0
-core_version_requirement: ^10
+core_version_requirement: ^11
 # Regions.
 regions:
   header: Header

@@ -8,15 +8,18 @@ dependencies:
   module:
     - node
     - system
+    - toolbar
 id: content_manager
 label: 'Content manager'
 weight: 4
 is_admin: null
 permissions:
   - 'access content'
+  - 'access toolbar'
   - 'create article content'
   - 'create page content'
   - 'delete any article content'
   - 'delete any page content'
   - 'edit any article content'
   - 'edit any page content'
+  - 'view own unpublished content'
