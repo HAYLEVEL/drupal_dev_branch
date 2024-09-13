@@ -1,0 +1,108 @@
+services:
+  mariadb:
+    image: wodby/mariadb:$MARIADB_TAG
+    container_name: "mariadb"
+    stop_grace_period: 30s
+    environment:
+      MYSQL_ROOT_PASSWORD: $DB_ROOT_PASSWORD
+      MYSQL_DATABASE: $DB_NAME
+      MYSQL_USER: $DB_USER
+      MYSQL_PASSWORD: $DB_PASSWORD
+      MYSQL_TRANSACTION_ISOLATION: READ-COMMITTED
+    volumes:
+      - /var/www/html/back_sql:/docker-entrypoint-initdb.d
+      - mariadb-datavolume:/var/lib/mysql
+
+  php:
+    image: wodby/drupal-php:$PHP_TAG
+    container_name: "php"
+    environment:
+      PHP_EXTENSIONS_DISABLE: xhprof,spx
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - /var/www/html:/var/www/html:cached
+      - php_ssh:/home/wodby/.ssh
+
+  nginx:
+    image: wodby/nginx:$NGINX_TAG
+    container_name: "nginx"
+    depends_on:
+      - php
+    environment:
+      NGINX_SET_REAL_IP_FROM: "0.0.0.0/0"
+      NGINX_REAL_IP_HEADER: "CF-Connecting-IP"
+      NGINX_REAL_IP_RECURSIVE: on
+      NGINX_STATIC_OPEN_FILE_CACHE: "off"
+      NGINX_ERROR_LOG_LEVEL: debug
+      NGINX_BACKEND_HOST: php
+      NGINX_SERVER_ROOT: /var/www/html/web
+      NGINX_VHOST_PRESET: $NGINX_VHOST_PRESET
+    volumes:
+      - /var/www/html:/var/www/html:cached
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nginx.rule=Host(`www.drupalliqx.pp.ua`)"
+      - "traefik.http.routers.adminer.entrypoints=websecure"
+      - "traefik.http.routers.adminer.tls.certresolver=myresolver"
+      - "traefik.http.services.adminer.loadbalancer.server.port=9000"
+
+  adminer:
+    image: wodby/adminer:$ADMINER_TAG
+    container_name: "adminer"
+    depends_on:
+      - mariadb
+    environment:
+      ADMINER_DEFAULT_SERVER: mariadb
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.adminer.rule=Host(`adminer.drupalliqx.pp.ua`)"
+      - "traefik.http.routers.nginx.entrypoints=websecure"
+      - "traefik.http.routers.nginx.tls.certresolver=myresolver"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:$PHPMYADMIN_TAG
+    container_name: "phpmyadmin"
+    depends_on:
+      - mariadb
+    environment:
+      PMA_HOST: mariadb
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.drupalliqx.pp.ua`)"
+      - "traefik.http.routers.phpmyadmin.entrypoints=websecure"
+      - "traefik.http.routers.phpmyadmin.tls.certresolver=myresolver"
+      - "traefik.http.services.phpmyadmin.loadbalancer.server.port=80"
+
+  memcached:
+    image: wodby/memcached:$MEMCACHED_TAG
+    container_name: "memcached"
+    environment:
+      MEMCACHED_MEMORY_LIMIT: 64 # Memory limit in MB
+      MEMCACHED_MAX_CONNECTIONS: 1024 # Maximum number of connections
+    ports:
+      - "11211:11211"
+    command: memcached -m 512 -t 4 -c 512 -vv
+    labels:
+      - "traefik.enable=false"
+
+
+  node:
+    image: wodby/node:$NODE_TAG
+    container_name: "node"
+    working_dir: /var/www/html/web/themes/custom/bootcamp_theme
+    volumes:
+      - /var/www/html:/var/www/html
+    command: sh -c 'npm install && npm run start'
+
+
+networks:
+  default:
+    name: traefik-net
+    external: true
+
+volumes:
+  mariadb-datavolume:
+    driver: local
+  php_ssh:
+    driver: local
