@@ -43,6 +43,14 @@ services:
       - "traefik.http.routers.nginx.entrypoints=websecure"
       - "traefik.http.routers.nginx.tls.certresolver=myresolver"
 
+  node:
+    image: wodby/node:$NODE_TAG
+    container_name: "node"
+    working_dir: /var/www/html/web/themes/custom/bootcamp_theme
+    volumes:
+      - /var/www/html:/var/www/html
+    command: sh -c 'npm install && npm run start'
+
 networks:
   default:
     external:

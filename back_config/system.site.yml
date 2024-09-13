@@ -2,8 +2,8 @@ _core:
   default_config_hash: ijfbzDTN4CbE7Sr-6ubWzy_t1vH4OtU1doNCLssVz-4
 langcode: en
 uuid: b16f966e-b880-4b7b-add9-db9bba91e9ad
-name: Drupal
-mail: ''
+name: 'My site'
+mail: s.vlasiuk@dev-branch.com
 slogan: ''
 page:
   403: ''

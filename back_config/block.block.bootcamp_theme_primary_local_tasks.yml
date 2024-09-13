@@ -1,0 +1,22 @@
+uuid: 63ba85ed-c447-4643-b548-cfc5cfe27b18
+langcode: en
+status: true
+dependencies:
+  theme:
+    - bootcamp_theme
+_core:
+  default_config_hash: nGE3EoPQQaQCuqTUtZgw0-KIzmrqdKDzdNQf2JyPUt4
+id: bootcamp_theme_primary_local_tasks
+theme: bootcamp_theme
+region: header
+weight: -4
+provider: null
+plugin: local_tasks_block
+settings:
+  id: local_tasks_block
+  label: 'Primary tabs'
+  label_display: '0'
+  provider: core
+  primary: true
+  secondary: false
+visibility: {  }
