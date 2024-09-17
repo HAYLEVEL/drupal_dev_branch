@@ -43,9 +43,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.nginx.rule=Host(`www.drupalliqx.pp.ua`)"
-      - "traefik.http.routers.adminer.entrypoints=websecure"
-      - "traefik.http.routers.adminer.tls.certresolver=myresolver"
-      - "traefik.http.services.adminer.loadbalancer.server.port=9000"
+      - "traefik.http.routers.nginx.entrypoints=websecure"
+      - "traefik.http.routers.nginx.tls.certresolver=myresolver"
 
   adminer:
     image: wodby/adminer:$ADMINER_TAG
@@ -57,8 +56,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.adminer.rule=Host(`adminer.drupalliqx.pp.ua`)"
-      - "traefik.http.routers.nginx.entrypoints=websecure"
-      - "traefik.http.routers.nginx.tls.certresolver=myresolver"
+      - "traefik.http.routers.adminer.entrypoints=websecure"
+      - "traefik.http.routers.adminer.tls.certresolver=myresolver"
+      - "traefik.http.services.adminer.loadbalancer.server.port=9000"
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:$PHPMYADMIN_TAG
@@ -74,18 +74,18 @@ services:
       - "traefik.http.routers.phpmyadmin.tls.certresolver=myresolver"
       - "traefik.http.services.phpmyadmin.loadbalancer.server.port=80"
 
+
   memcached:
     image: wodby/memcached:$MEMCACHED_TAG
     container_name: "memcached"
     environment:
       MEMCACHED_MEMORY_LIMIT: 64 # Memory limit in MB
       MEMCACHED_MAX_CONNECTIONS: 1024 # Maximum number of connections
+    command: memcached -m 512 -t 4 -c 512 -vv
     ports:
       - "11211:11211"
-    command: memcached -m 512 -t 4 -c 512 -vv
     labels:
       - "traefik.enable=false"
-
 
   node:
     image: wodby/node:$NODE_TAG
@@ -95,11 +95,10 @@ services:
       - /var/www/html:/var/www/html
     command: sh -c 'npm install && npm run start'
 
-
 networks:
   default:
-    name: traefik-net
-    external: true
+    external:
+      name: traefik-net
 
 volumes:
   mariadb-datavolume:
