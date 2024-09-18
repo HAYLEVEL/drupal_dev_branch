@@ -30,6 +30,9 @@ services:
     depends_on:
       - php
     environment:
+      NGINX_SET_REAL_IP_FROM: "0.0.0.0/0"
+      NGINX_REAL_IP_HEADER: "CF-Connecting-IP"
+      NGINX_REAL_IP_RECURSIVE: on
       NGINX_STATIC_OPEN_FILE_CACHE: "off"
       NGINX_ERROR_LOG_LEVEL: debug
       NGINX_BACKEND_HOST: php
