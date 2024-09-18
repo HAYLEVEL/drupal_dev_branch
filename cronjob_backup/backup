@@ -1,0 +1,10 @@
+/var/log/cronjob/backup.log {
+    # Rotate the log file when it reaches 10 MB
+    size 10M
+    monthly
+    compress
+    maxage 365
+    create 0640 liqxDev liqxDev
+    missingok
+    notifempty
+}
