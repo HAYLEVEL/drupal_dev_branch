@@ -22,7 +22,7 @@ If you need to use this script do these steps before:
 3. Make script executable.(chmod +x backup.sh)
 4. Install logrotate if it doesn't exist.
 5. Place logrotate configuration file in /etc/logrotate.d/
-6. Configure your cron for execution backup script
-     
-    # Example 
+6. Configure your cron for execution backup script. Example:
+   ```cron 
     0  0    * * *   user /home/user/backup.sh
+   ```
