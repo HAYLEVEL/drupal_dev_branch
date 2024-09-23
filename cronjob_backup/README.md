@@ -18,10 +18,30 @@ Also, you can find logrotate configuration file which can help you manage the lo
 If you need to use this script do these steps before:
 
 1. Create dirs /home/backups/files and /var/log/cronjob/
-2. Set permissions on early-created dirs. The user who starts this script must have write and read permisions. 
+   ``` 
+   mkdir -p /home/backups/files && mkdir -p /var/log/cronjob/
+   ```
+2. Set permissions on early-created dirs. The user who starts this script must have write and read permisions.
+   ```
+   chown $USER:$USER /home/backups/files && chown $USER:$USER /var/log/cronjob/
+   ```
 3. Make script executable.(chmod +x backup.sh)
+   ```
+   sudo chmod +x backup.sh
+   ```
 4. Install logrotate if it doesn't exist.
+   ```
+   if ! command -v logrotate &> /dev/null; then
+       echo "Installing logrotate..."
+       sudo apt-get update && sudo apt-get install -y logrotate
+   else
+       echo "logrotate is already installed."
+   fi
+   ```
 5. Place logrotate configuration file in /etc/logrotate.d/
+   ```
+   mv cronjob_backup/backup /etc/logrotate.d/backup
+   ```
 6. Configure your cron for execution backup script. Example:
    ```cron 
     0  0    * * *   user /home/user/backup.sh
