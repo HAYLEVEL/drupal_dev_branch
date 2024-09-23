@@ -12,13 +12,21 @@ NAME_DIR="$BACKUP_DIR/liqx_$DATE"
 mkdir -p "$NAME_DIR"
 
 # Backup Database
-docker exec php vendor/bin/drush sql:dump --result-file=/var/www/html/back_sql/backup.sql --skip-tables-key=common
-docker cp php:/var/www/html/back_sql/backup.sql $NAME_DIR/backup-$DATE.sql
-echo "$DATE - Database backup created at $NAME_DIR/backup-$DATE.sql" >> "$LOG_FILE"
+if docker exec php vendor/bin/drush sql:dump --result-file=/var/www/html/back_sql/backup.sql --skip-tables-key=common; then
+    docker cp php:/var/www/html/back_sql/backup.sql $NAME_DIR/backup-$DATE.sql
+    tar -czf $NAME_DIR/backup-$DATE.sql.tar.gz $NAME_DIR/backup-$DATE.sql
+    rm $NAME_DIR/backup-$DATE.sql
+    echo "$DATE - Database backup created at $NAME_DIR/backup-$DATE.sql" >> "$LOG_FILE"
+else
+    echo "$DATE - Error: Database backup failed." >> "$LOG_FILE"
+fi
 
 # Backup Website Files
-tar -czf "$NAME_DIR/files_backup_$DATE.tar.gz" /var/www/html/web/sites/default/files
-echo "$DATE - Website files backup created at $NAME_DIR/files_backup_$DATE.tar.gz" >> "$LOG_FILE"
+if tar -czf "$NAME_DIR/files_backup_$DATE.tar.gz" /var/www/html/web/sites/default/files; then
+    echo "$DATE - Website files backup created at $NAME_DIR/files_backup_$DATE.tar.gz" >> "$LOG_FILE"
+else
+    echo "$DATE - Error: Website files backup failed." >> "$LOG_FILE"
+fi
 
 # Clean up old backups
 find "$BACKUP_DIR" -type d -mtime +$RETENTION_DAYS -print > "$TEMP_LOG"
