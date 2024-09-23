@@ -12,11 +12,9 @@ NAME_DIR="$BACKUP_DIR/liqx_$DATE"
 mkdir -p "$NAME_DIR"
 
 # Backup Database
-if docker exec php vendor/bin/drush sql:dump --result-file=/var/www/html/back_sql/backup.sql --skip-tables-key=common; then
-    docker cp php:/var/www/html/back_sql/backup.sql $NAME_DIR/backup-$DATE.sql
-    tar -czf $NAME_DIR/backup-$DATE.sql.tar.gz $NAME_DIR/backup-$DATE.sql
-    rm $NAME_DIR/backup-$DATE.sql
-    echo "$DATE - Database backup created at $NAME_DIR/backup-$DATE.sql" >> "$LOG_FILE"
+if docker exec php vendor/bin/drush sql:dump --result-file=/var/www/html/back_sql/backup.sql --gzip --skip-tables-key=common; then
+    docker cp php:/var/www/html/back_sql/backup.sql.gz $NAME_DIR/backup-$DATE.sql.gz
+    echo "$DATE - Database backup created at $NAME_DIR/backup-$DATE.sql.gz" >> "$LOG_FILE"
 else
     echo "$DATE - Error: Database backup failed." >> "$LOG_FILE"
 fi
