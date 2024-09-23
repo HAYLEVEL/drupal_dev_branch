@@ -1,0 +1,42 @@
+# Job for PHPCS
+phpcs:
+  stage: lint
+  image: wodby/drupal-php:8.3-dev-4.61.2
+  before_script:
+    - git config --global --add safe.directory $CI_PROJECT_DIR
+    - git fetch origin
+    - composer install --no-progress
+  script:
+    - |
+      CHANGED_FILES=$(git diff --name-only origin/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME | grep -E '\.(php|module|install|theme)$' || true)
+      echo "Changed files: $CHANGED_FILES"
+
+    # Run linter only on changed files
+    - |
+      if [ -n "$CHANGED_FILES" ]; then
+        vendor/bin/phpcs --standard=Drupal,DrupalPractice $CHANGED_FILES
+      else
+        echo "No PHP files changed."
+      fi
+  only:
+    - merge_requests
+
+# Job for ESLint
+eslint:
+  stage: lint
+  image: wodby/drupal-php:8.3-dev-4.61.2
+  before_script:
+    - git config --global --add safe.directory $CI_PROJECT_DIR
+    - git fetch origin
+    - sudo apk add npm
+    - composer install --no-progress
+    - sudo npm install eslint eslint-config-airbnb eslint-plugin-yml eslint-plugin-prettier eslint-config-drupal --save-dev
+  script:
+    - |
+      CHANGED_FILES=$(git diff --name-only origin/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME | grep -E '\.(js)$' || true)
+      echo "Changed files: $CHANGED_FILES"
+
+    # Run linter only on changed files
+    - npx eslint --no-error-on-unmatched-pattern $CHANGED_FILES
+  only:
+    - merge_requests
