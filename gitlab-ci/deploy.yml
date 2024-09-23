@@ -18,7 +18,7 @@ deploy:
         echo "Starting database backup--------------------------------------"
         docker exec php vendor/bin/drush sql:dump --result-file=/var/www/html/back_sql/backup.sql --skip-tables-key=common
         docker cp php:/var/www/html/back_sql/backup.sql ~/back_sql/backup.sql
-        git restore /var/www/html/back_sql/backup.sql
+        docker exec php git restore /var/www/html/back_sql/backup.sql
         echo "Deploy to docker stack"
         docker start node
         sleep 20
