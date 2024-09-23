@@ -14,11 +14,12 @@ deploy:
     - |
       ssh $REMOTE_USER@$REMOTE_HOST "
         docker exec php ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+        docker exec php git pull origin master
         echo "Starting database backup--------------------------------------"
         docker exec php vendor/bin/drush sql:dump --result-file=/var/www/html/back_sql/backup.sql --skip-tables-key=common
         docker cp php:/var/www/html/back_sql/backup.sql ~/back_sql/backup.sql
+        git restore /var/www/html/back_sql/backup.sql
         echo "Deploy to docker stack"
-        docker exec php git pull origin master
         docker start node
         sleep 20
         docker exec php composer install --no-dev --optimize-autoloader
