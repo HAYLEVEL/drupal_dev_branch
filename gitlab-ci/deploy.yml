@@ -23,7 +23,7 @@ deploy:
         docker start node
         sleep 20
         docker exec php composer install --no-dev --optimize-autoloader
-        docker exec php vendor/bin/drush deploy -y
+        docker exec php vendor/bin/drush deploy -y -v
       "
   when: always
 
@@ -34,11 +34,11 @@ restore:
     - |
       ssh $REMOTE_USER@$REMOTE_HOST "
         docker exec php ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
-        docker exec php git reset --hard HEAD~1
+        docker exec php git checkout $CI_COMMIT_BEFORE_SHA
         echo "Reverting Drupal site to previous state"
         docker exec php composer install --no-dev --optimize-autoloader
         docker start node
         sleep 20
-        docker exec php vendor/bin/drush deploy
+        docker exec php vendor/bin/drush deploy -y -v
       "
   when: on_failure
