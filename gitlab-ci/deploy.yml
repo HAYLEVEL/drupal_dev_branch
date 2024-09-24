@@ -16,7 +16,7 @@ deploy:
         docker exec php ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
         docker exec php git pull origin master
         echo "Starting database backup--------------------------------------"
-        docker exec php vendor/bin/drush sql:dump --result-file=/var/www/html/back_sql/backup.sql --skip-tables-key=common
+        docker exec php vendor/bin/drush sql:dump --result-file=/var/www/html/back_sql/backup.sql --skip-tables-list=cache*
         docker cp php:/var/www/html/back_sql/backup.sql ~/back_sql/backup.sql
         docker exec php git restore /var/www/html/back_sql/backup.sql
         echo "Deploy to docker stack"
