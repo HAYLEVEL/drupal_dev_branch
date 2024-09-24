@@ -12,7 +12,7 @@ NAME_DIR="$BACKUP_DIR/liqx_$DATE"
 mkdir -p "$NAME_DIR"
 
 # Backup Database
-if drush sql:dump --result-file=$NAME_DIR/backup-$DATE.sql --gzip --skip-tables-key=common; then
+if drush sql:dump --result-file=$NAME_DIR/backup-$DATE.sql --gzip --skip-tables-list=cache*; then
     echo "$DATE - Database backup created at $NAME_DIR/backup-$DATE.sql.gz"
 else
     echo "$DATE - Error: Database backup failed."
