@@ -24,6 +24,7 @@ deploy:
         sleep 20
         docker exec php composer install --no-dev --optimize-autoloader
         docker exec php vendor/bin/drush deploy -y -v
+        exit 1
       "
   when: always
 
