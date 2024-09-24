@@ -107,7 +107,7 @@ services:
       - /home/backups/files:/home/backups/files
     user: root
     command: >
-      /bin/sh -c "echo '* * * * * /var/www/html/docker_under_portainer/backup.sh' > /etc/crontabs/wodby &&
+      /bin/sh -c "echo '0 4 * * * /var/www/html/docker_under_portainer/backup.sh' > /etc/crontabs/wodby &&
                   crond -f -d 0"
 
 networks:
