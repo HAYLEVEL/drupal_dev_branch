@@ -95,6 +95,21 @@ services:
       - /var/www/html:/var/www/html
     command: sh -c 'npm install && npm run build'
 
+
+  backup:
+    image: wodby/drupal-php:$PHP_TAG
+    container_name: "backup"
+    depends_on:
+      - mariadb
+      - php
+    volumes:
+      - /var/www/html:/var/www/html
+      - /home/backups/files:/home/backups/files
+    user: root
+    command: >
+      /bin/sh -c "echo '0 4 * * * /var/www/html/docker_under_portainer/backup.sh' > /etc/crontabs/wodby &&
+                  crond -f -d 0"
+
 networks:
   default:
     external:
