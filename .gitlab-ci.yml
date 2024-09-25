@@ -1,0 +1,7 @@
+stages:
+  - lint
+  - deploy
+  - restore
+include:
+  - local: gitlab-ci/deploy.yml
+  - local: gitlab-ci/lint.yml
