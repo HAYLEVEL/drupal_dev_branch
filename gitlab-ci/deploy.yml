@@ -1,0 +1,43 @@
+before_script:
+    - 'command -v ssh-agent >/dev/null || ( apk add --update openssh )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan $REMOTE_HOST >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+
+deploy:
+  image: alpine:latest
+  stage: deploy
+  script:
+    - |
+      ssh $REMOTE_USER@$REMOTE_HOST "
+        docker exec php ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+        docker exec php git pull origin master
+        echo "Starting database backup--------------------------------------"
+        docker exec php vendor/bin/drush sql:dump --result-file=/var/www/html/back_sql/backup.sql --gzip --skip-tables-list=cache*
+        docker cp php:/var/www/html/back_sql/backup.sql.gz ~/back_sql/backup.sql.gz
+        echo "Deploy to docker stack"
+        docker start node
+        sleep 20
+        docker exec php composer install --no-dev --optimize-autoloader
+        docker exec php vendor/bin/drush deploy -y -v
+      "
+  when: always
+
+restore:
+  image: alpine:latest
+  stage: restore
+  script:
+    - |
+      ssh $REMOTE_USER@$REMOTE_HOST "
+        docker exec php ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+        docker exec php git checkout $CI_COMMIT_BEFORE_SHA
+        echo "Reverting Drupal site to previous state"
+        docker exec php composer install --no-dev --optimize-autoloader
+        docker start node
+        sleep 20
+        docker exec php vendor/bin/drush deploy -y -v
+      "
+  when: on_failure
