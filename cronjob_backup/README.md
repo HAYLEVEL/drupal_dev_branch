@@ -62,8 +62,9 @@ Configuring the mail server using Postfix.
    ```
 3. Add SASL Password File and edit it with you credentials, edit the /etc/postfix/sasl_passwd file with the MailerSend SMTP credentials.
    Set the correct permissions for the SASL password file and create the hash db file:
+
+   Example of 'sasl_passwd file for Milersend -' <em>'[smtp.mailersend.net]:587 MS_FPowyT@example.com:your_password'</em>
    ```
-   mv /var/www/html/cronjob_backup/main.cf /etc/postfix/sasl_passwd
    sudo nano /etc/postfix/sasl_passwd
    sudo chmod 600 /etc/postfix/sasl_passwd && sudo postmap /etc/postfix/sasl_passwd
    ```
