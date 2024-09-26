@@ -6,6 +6,7 @@ This simple script do this routine work:
 2. Creates a backup of the site files and places the archive in dir described inside the script.
 3. Cleans old backups if older than 5 days.
 4. Logs all in the file described inside.(You can change the place where you want store logs.)
+5. Sends email with the information about the backup process.
 
 Also, you can find logrotate configuration file which can help you manage the log file:
 
@@ -13,7 +14,7 @@ Also, you can find logrotate configuration file which can help you manage the lo
 2. Archives if it is more than one month old.
 3. Delets if it is older than 12 months.
 
-# Prerequisites
+## Prerequisites
 
 If you need to use this script do these steps before:
 
@@ -46,3 +47,41 @@ If you need to use this script do these steps before:
    ```cron 
     0  0    * * *   user /home/user/backup.sh
    ```
+
+## Mailing feature
+
+Configuring the mail server using Postfix.
+
+1. Install Required Packages:
+   ```
+   sudo apt-get update && sudo apt-get install postfix libsasl2-modules
+   ```
+2. Add Postfix configuration and edit it with you credentials:
+   ```
+   mv /var/www/html/cronjob_backup/main.cf /etc/postfix/main.cf 
+   ```
+3. Add SASL Password File and edit it with you credentials, edit the /etc/postfix/sasl_passwd file with the MailerSend SMTP credentials.
+   Set the correct permissions for the SASL password file and create the hash db file:
+
+   Example of 'sasl_passwd file for Milersend -' <em>'[smtp.mailersend.net]:587 MS_FPowyT@example.com:your_password'</em>
+   ```
+   sudo nano /etc/postfix/sasl_passwd
+   sudo chmod 600 /etc/postfix/sasl_passwd && sudo postmap /etc/postfix/sasl_passwd
+   ```
+4. Reload or restart Postfix to apply the changes:
+   ```
+   sudo systemctl restart postfix
+   ```
+5. Test Your Configuration. Send a test email using the sendmail or mail command to check if everything is working:
+   ```
+   echo "Test email from Postfix via MailerSend" | mail -s "Test Email" recipient@example.com
+   ```
+6. If there are any issues, check the logs for more information:
+   ```
+   sudo tail -f /var/log/mail.log
+   ```
+7. Additional Tips:
+
+ - Ensure that your DNS settings for SPF, DKIM, and DMARC are correctly configured for your domain to improve email deliverability.
+ - If you encounter authentication errors, double-check your username and password in the sasl_passwd file.
+

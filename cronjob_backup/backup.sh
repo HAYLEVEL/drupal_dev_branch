@@ -9,6 +9,16 @@ LOG_FILE="/var/log/cronjob/backup.log"
 DATE=$(date +"%Y-%m-%d_%H-%M-%S")
 RETENTION_DAYS=5
 TEMP_LOG=$(mktemp)
+MAIL_RECIPIENT="s.vlasiuk@dev-branch.com"
+SUBJECT_SUCCESS="Backup Success on $DATE"
+SUBJECT_ERROR="Backup Failure on $DATE"
+
+# Function to send an email
+send_mail() {
+    local subject="$1"
+    local message="$2"
+    echo "$message" | mail -s "$subject" "$MAIL_RECIPIENT"
+}
 
 # Create folder for backup
 NAME_DIR="$BACKUP_DIR/liqx_$DATE"
@@ -16,7 +26,9 @@ NAME_DIR="$BACKUP_DIR/liqx_$DATE"
 if mkdir -p "$NAME_DIR"; then
     echo "$DATE - Created directory $NAME_DIR" >> "$LOG_FILE"
 else
-    echo "$DATE - Error: Cannot create directory $NAME_DIR, please check permissions and Readme file" >> "$LOG_FILE"
+    ERROR_MSG="$DATE - Error: Cannot create directory $NAME_DIR, please check permissions and Readme file"
+    echo "$ERROR_MSG" >> "$LOG_FILE"
+    send_mail "$SUBJECT_ERROR" "$ERROR_MSG"
     exit 1
 fi
 
@@ -25,7 +37,9 @@ if docker exec php vendor/bin/drush sql:dump --result-file=/var/www/html/back_sq
     docker cp php:/var/www/html/back_sql/backup.sql.gz $NAME_DIR/backup-$DATE.sql.gz
     echo "$DATE - Database backup created at $NAME_DIR/backup-$DATE.sql.gz" >> "$LOG_FILE"
 else
-    echo "$DATE - Error: Database backup failed." >> "$LOG_FILE"
+    ERROR_MSG="$DATE - Error: Database backup failed."
+    echo "$ERROR_MSG" >> "$LOG_FILE"
+    send_mail "$SUBJECT_ERROR" "$ERROR_MSG"
     exit 1
 fi
 
@@ -33,7 +47,9 @@ fi
 if tar -czf "$NAME_DIR/files_backup_$DATE.tar.gz" /var/www/html/web/sites/default/files; then
     echo "$DATE - Website files backup created at $NAME_DIR/files_backup_$DATE.tar.gz" >> "$LOG_FILE"
 else
-    echo "$DATE - Error: Website files backup failed." >> "$LOG_FILE"
+    ERROR_MSG="$DATE - Error: Website files backup failed."
+    echo "$ERROR_MSG" >> "$LOG_FILE"
+    send_mail "$SUBJECT_ERROR" "$ERROR_MSG"
     exit 1
 fi
 
@@ -46,3 +62,7 @@ if [ -s "$TEMP_LOG" ]; then
 else
     echo "Nothing to delete"
 fi
+
+# Success notification
+SUCCESS_MSG="$DATE - Backup process completed successfully."
+send_mail "$SUBJECT_SUCCESS" "$SUCCESS_MSG"
