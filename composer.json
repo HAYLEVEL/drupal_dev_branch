@@ -48,7 +48,8 @@
         "enable-patching": true,
 	"patches": {
     	  "drupal/linkchecker": {
-      	    "Issue #3334240: Use GET method as fallback if HEAD fails": "https://git.drupalcode.org/project/linkchecker/-/merge_requests/56.patch"
+      	    "Issue #3334240 - Commit 8840c03bc5c5a9c1e71166cc0c6dfde68cd50b18": "https://git.drupalcode.org/project/linkchecker/-/commit/8840c03bc5c5a9c1e71166cc0c6dfde68cd50b18.patch",
+            "Issue #3334240 - Commit 146b5fa3f0a5aae5117a4fc4105ca49340dd16e9": "https://git.drupalcode.org/project/linkchecker/-/commit/146b5fa3f0a5aae5117a4fc4105ca49340dd16e9.patch"
        	  }
   	},
         "drupal-scaffold": {
