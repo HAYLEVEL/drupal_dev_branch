@@ -1,8 +1,7 @@
 services:
-
   # Database: MySQL
   mysql-zabbix:
-    image: mysql:9.0.1
+    image: mysql:$MYSQL_TAG
     container_name: "mysql-zabbix"
     environment:
       MYSQL_DATABASE: $MYSQL_DATABASE
@@ -14,7 +13,7 @@ services:
 
   # Zabbix server
   zabbix-server:
-    image: zabbix/zabbix-server-mysql:ubuntu-7.0.4
+    image: zabbix/zabbix-server-mysql:$ZABBIX_SERVER_MYSQL_TAG
 
     container_name: "zabbix-server"
     environment:
@@ -31,7 +30,7 @@ services:
 
   # Zabbix frontend
   zabbix-frontend:
-    image: zabbix/zabbix-web-nginx-mysql:7.0.4-ubuntu
+    image: zabbix/zabbix-web-nginx-mysql:$ZABBIX_WEB_NGINX_MYSQL_TAG
     container_name: "zabbix-frontend"
     environment:
       DB_SERVER_HOST: $DB_SERVER_HOST
@@ -51,7 +50,7 @@ services:
 
   # Zabbix agent
   zabbix-agent:
-    image: zabbix/zabbix-agent:ubuntu-6.4.18
+    image: zabbix/zabbix-agent:$ZABBIX_AGENT_TAG
     container_name: "zabbix-agent"
     environment:
       ZBX_HOSTNAME: "Zabbix server"
