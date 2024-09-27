@@ -103,5 +103,14 @@
         "drupal/coder": "^8.3",
         "slevomat/coding-standard": "^8.15",
         "squizlabs/php_codesniffer": "^3.10"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "./cleanup_tests.sh"
+        ],
+        "post-update-cmd": [
+            "./cleanup_tests.sh"
+        ]
     }
+
 }
