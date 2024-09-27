@@ -16,6 +16,7 @@
     ],
     "require": {
         "composer/installers": "^2.0",
+        "cweagans/composer-patches": "^1.7",
         "drupal/admin_toolbar": "^3.5",
         "drupal/core-composer-scaffold": "^11.0",
         "drupal/core-project-message": "^11.0",
@@ -38,11 +39,13 @@
             "drupal/core-project-message": true,
             "phpstan/extension-installer": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "cweagans/composer-patches": true
         },
         "sort-packages": true
     },
     "extra": {
+        "enable-patching": true,
 	"patches": {
     	  "drupal/linkchecker": {
       	    "Issue #3334240: Use GET method as fallback if HEAD fails": "https://git.drupalcode.org/project/linkchecker/-/merge_requests/56.patch"
