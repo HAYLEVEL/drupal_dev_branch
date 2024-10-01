@@ -10,7 +10,7 @@ services:
       MYSQL_PASSWORD: $DB_PASSWORD
       MYSQL_TRANSACTION_ISOLATION: READ-COMMITTED
     volumes:
-      - /var/www/html/back_sql:/docker-entrypoint-initdb.d
+      - /var/www/html/back_sql/back_mariadb:/docker-entrypoint-initdb.d
       - mariadb-datavolume:/var/lib/mysql
 
   php:
@@ -74,7 +74,6 @@ services:
       - "traefik.http.routers.phpmyadmin.tls.certresolver=myresolver"
       - "traefik.http.services.phpmyadmin.loadbalancer.server.port=80"
 
-
   memcached:
     image: wodby/memcached:$MEMCACHED_TAG
     container_name: "memcached"
@@ -95,7 +94,6 @@ services:
       - /var/www/html:/var/www/html
     command: sh -c 'npm install && npm run build'
 
-
   backup:
     image: wodby/drupal-php:$PHP_TAG
     container_name: "backup"
@@ -110,6 +108,33 @@ services:
       /bin/sh -c "echo '0 4 * * * /var/www/html/docker_under_portainer/backup.sh' > /etc/crontabs/wodby &&
                   crond -f -d 0"
 
+  solr:
+    image: wodby/solr:$SOLR_TAG
+    container_name: "solr"
+    environment:
+      SOLR_DEFAULT_CONFIG_SET: search_api_solr_8.x-3.9
+      SOLR_HEAP: 1024m
+
+    volumes:
+     - solr-data:/opt/solr/server/solr # Volume for solr data
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.solr.rule=Host(`solr.drupalliqx.pp.ua`)"
+      - "traefik.http.routers.solr.entrypoints=websecure"
+      - "traefik.http.routers.solr.tls.certresolver=myresolver"
+      - "traefik.http.services.solr.loadbalancer.server.port=8983"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:$ELASTICSEARCH_TAG
+    container_name: "elasticsearch"
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+
 networks:
   default:
     external:
@@ -119,4 +144,8 @@ volumes:
   mariadb-datavolume:
     driver: local
   php_ssh:
+    driver: local
+  solr-data:
+    driver: local
+  elasticsearch-data:
     driver: local
