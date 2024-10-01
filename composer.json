@@ -20,6 +20,7 @@
         "drupal/core-composer-scaffold": "^11.0",
         "drupal/core-project-message": "^11.0",
         "drupal/core-recommended": "^11.0",
+        "drupal/elasticsearch_connector": "^8.0@alpha",
         "drupal/gin": "^3.0.0-rc13",
         "drupal/gin_toolbar": "^1.0@beta",
         "drupal/memcache": "^2.7",
