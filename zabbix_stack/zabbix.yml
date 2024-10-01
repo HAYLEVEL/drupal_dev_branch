@@ -1,0 +1,71 @@
+services:
+  # Database: MySQL
+  mysql-zabbix:
+    image: mysql:$MYSQL_TAG
+    container_name: "mysql-zabbix"
+    environment:
+      MYSQL_DATABASE: $MYSQL_DATABASE
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+    volumes:
+      - mysql:/var/lib/mysql
+
+  # Zabbix server
+  zabbix-server:
+    image: zabbix/zabbix-server-mysql:$ZABBIX_SERVER_MYSQL_TAG
+
+    container_name: "zabbix-server"
+    environment:
+      DB_SERVER_HOST: $DB_SERVER_HOST
+      MYSQL_DATABASE: $MYSQL_DATABASE
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+    depends_on:
+      - mysql-zabbix
+    volumes:
+      - zbx_db:/var/lib/zabbix
+    ports:
+      - "10051:10051"
+
+  # Zabbix frontend
+  zabbix-frontend:
+    image: zabbix/zabbix-web-nginx-mysql:$ZABBIX_WEB_NGINX_MYSQL_TAG
+    container_name: "zabbix-frontend"
+    environment:
+      DB_SERVER_HOST: $DB_SERVER_HOST
+      MYSQL_DATABASE: $MYSQL_DATABASE
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+      ZBX_SERVER_HOST: zabbix-server
+      PHP_TZ: Europe/Riga  # Replace with your timezone
+    depends_on:
+      - zabbix-server
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.zabbix-frontend.rule=Host(`zabbix.drupalliqx.pp.ua`)"
+      - "traefik.http.routers.zabbix-frontend.entrypoints=websecure"
+      - "traefik.http.routers.zabbix-frontend.tls.certresolver=myresolver"
+      - "traefik.http.services.zabbix-frontend.loadbalancer.server.port=8080"
+
+  # Zabbix agent
+  zabbix-agent:
+    image: zabbix/zabbix-agent:$ZABBIX_AGENT_TAG
+    container_name: "zabbix-agent"
+    environment:
+      ZBX_HOSTNAME: "Zabbix server"
+      ZBX_SERVER_HOST: zabbix-server
+    depends_on:
+      - zabbix-server
+
+
+networks:
+  default:
+    external:
+      name: traefik-net
+
+volumes:
+  mysql:
+    driver: local
+  zbx_db:
+    driver: local

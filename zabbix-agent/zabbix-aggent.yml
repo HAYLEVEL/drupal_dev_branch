@@ -1,0 +1,10 @@
+services:
+# Zabbix agent
+  zabbix_agent:
+    image: zabbix/zabbix-agent:$ZABBIX_AGENT_TAG
+    container_name: "zabbix_agent"
+    environment:
+      ZBX_HOSTNAME: "Zabbix server"
+      ZBX_SERVER_HOST: $ZBX_SERVER_HOST
+    ports:
+      - "10050:10050"
