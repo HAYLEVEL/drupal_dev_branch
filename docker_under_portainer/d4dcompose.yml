@@ -10,7 +10,7 @@ services:
       MYSQL_PASSWORD: $DB_PASSWORD
       MYSQL_TRANSACTION_ISOLATION: READ-COMMITTED
     volumes:
-      - /var/www/html/back_sql/back_mariadb:/docker-entrypoint-initdb.d
+      - /var/www/html/back_sql:/docker-entrypoint-initdb.d
       - mariadb-datavolume:/var/lib/mysql
 
   php:
