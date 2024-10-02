@@ -27,6 +27,7 @@ module:
   history: 0
   image: 0
   link: 0
+  linkchecker: 0
   memcache: 0
   memcache_admin: 0
   menu_link_content: 0
