@@ -124,6 +124,9 @@ services:
       - "traefik.http.routers.solr.entrypoints=websecure"
       - "traefik.http.routers.solr.tls.certresolver=myresolver"
       - "traefik.http.services.solr.loadbalancer.server.port=8983"
+      #Auth
+      - "traefik.http.middlewares.auth.basicauth.users=$BA_USER:$BA_PASSWORD"
+      - "traefik.http.routers.solr.middlewares=auth"
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:$ELASTICSEARCH_TAG
