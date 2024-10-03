@@ -16,6 +16,7 @@
     ],
     "require": {
         "composer/installers": "^2.0",
+        "cweagans/composer-patches": "^1.7",
         "drupal/admin_toolbar": "^3.5",
         "drupal/core-composer-scaffold": "^11.0",
         "drupal/core-project-message": "^11.0",
@@ -23,6 +24,7 @@
         "drupal/elasticsearch_connector": "^8.0@alpha",
         "drupal/gin": "^3.0.0-rc13",
         "drupal/gin_toolbar": "^1.0@beta",
+        "drupal/linkchecker": "^2.1@alpha",
         "drupal/memcache": "^2.7",
         "drupal/search_api_solr": "^4.3",
         "drupal/shield": "^1.8",
@@ -40,11 +42,19 @@
             "drupal/core-project-message": true,
             "phpstan/extension-installer": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "cweagans/composer-patches": true
         },
         "sort-packages": true
     },
     "extra": {
+        "enable-patching": true,
+	"patches": {
+    	  "drupal/linkchecker": {
+      	    "Add option to fallback to GET if HEAD fails1 - https://www.drupal.org/project/linkchecker/issues/3334240": "https://git.drupalcode.org/project/linkchecker/-/commit/8840c03bc5c5a9c1e71166cc0c6dfde68cd50b18.patch",
+            "Add option to fallback to GET if HEAD fails2 - https://www.drupal.org/project/linkchecker/issues/3334240": "https://git.drupalcode.org/project/linkchecker/-/commit/146b5fa3f0a5aae5117a4fc4105ca49340dd16e9.patch"
+       	  }
+  	},
         "drupal-scaffold": {
             "locations": {
                 "web-root": "web/"
