@@ -112,7 +112,7 @@ services:
     image: wodby/solr:$SOLR_TAG
     container_name: "solr"
     environment:
-      SOLR_DEFAULT_CONFIG_SET: search_api_solr_8.x-3.9
+      SOLR_DEFAULT_CONFIG_SET: $SOLR_DEFAULT_CONFIG_SET
       SOLR_HEAP: 1024m
 
     volumes:
