@@ -56,14 +56,17 @@ Configuring the mail server using Postfix.
    ```
    sudo apt-get update && sudo apt-get install postfix libsasl2-modules
    ```
-2. Add Postfix configuration and edit it with you credentials:
+2. Add Postfix configuration and edit it with you credentials.
+   Example configuration for Mailgun you can find in this dir with name main.cf.
+   For using Maileresend change relayhost section.
    ```
-   mv /var/www/html/cronjob_backup/main.cf /etc/postfix/main.cf 
+   sudo nano /etc/postfix/main.cf 
    ```
-3. Add SASL Password File and edit it with you credentials, edit the /etc/postfix/sasl_passwd file with the MailerSend SMTP credentials.
+3. Add SASL Password File and edit it with you credentials, edit the /etc/postfix/sasl_passwd file with the MailerSend or Mailgun SMTP credentials.
    Set the correct permissions for the SASL password file and create the hash db file:
 
    Example of 'sasl_passwd file for Milersend -' <em>'[smtp.mailersend.net]:587 MS_FPowyT@example.com:your_password'</em>
+   Example of 'sasl_passwd file for Mailgun -' <em>'[smtp.eu.mailgun.org]:587 postmaster@mg.drupalliqx.pp.ua:your_password'</em>
    ```
    sudo nano /etc/postfix/sasl_passwd
    sudo chmod 600 /etc/postfix/sasl_passwd && sudo postmap /etc/postfix/sasl_passwd
@@ -74,7 +77,7 @@ Configuring the mail server using Postfix.
    ```
 5. Test Your Configuration. Send a test email using the sendmail or mail command to check if everything is working:
    ```
-   echo "Test email from Postfix via MailerSend" | mail -s "Test Email" recipient@example.com
+   echo "Test email from Postfix" | mail -s "Test Email" recipient@example.com
    ```
 6. If there are any issues, check the logs for more information:
    ```
@@ -82,6 +85,6 @@ Configuring the mail server using Postfix.
    ```
 7. Additional Tips:
 
- - Ensure that your DNS settings for SPF, DKIM, and DMARC are correctly configured for your domain to improve email deliverability.
+ - Ensure that your DNS settings for SPF, DKIM, and DMARC are correctly configured for your domain to improve email deliverability if you use Milersend.
+ - If you use Mailgun follow the steps for creating domain. After that you can verify correctly configured DNS records.
  - If you encounter authentication errors, double-check your username and password in the sasl_passwd file.
-
