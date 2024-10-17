@@ -15,7 +15,10 @@ definitions:
           - chmod 700 ~/.ssh
           - ssh-keyscan $REMOTE_HOST >> ~/.ssh/known_hosts
           - chmod 644 ~/.ssh/known_hosts
-
+          - |
+            ssh $REMOTE_USER@$REMOTE_HOST "
+              ls -la
+            "
 pipelines:
   pull-requests:
     '**':
