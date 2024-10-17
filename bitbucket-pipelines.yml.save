@@ -1,20 +1,30 @@
 definitions:
   steps:
-    - step: &deploy
-        name: deploy
-        image: alpine:latest
-        runs-on:
-          - self.hosted
-        services:
-          - docker
+
+    - step:
+        name: Deploy
         script:
           - 'command -v ssh-agent >/dev/null || ( apk add --update openssh )'
           - eval $(ssh-agent -s)
+          - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
           - mkdir -p ~/.ssh
-          - (echo $SSH_PRIVATE_KEY | base64 -d > ~/.ssh/id_rsa)
           - chmod 700 ~/.ssh
           - ssh-keyscan $REMOTE_HOST >> ~/.ssh/known_hosts
           - chmod 644 ~/.ssh/known_hosts
+
+    - step:
+        name: Deploy to dev
+        image: amazon/aws-cli:latest
+        deployment: development # Development environment
+        script:
+          - python deploy.py test
+
+    - step:
+        name: Deploy to prod
+        image: amazon/aws-cli:latest
+        deployment: production # Production environment
+        script:
+          - python deploy.py test
 
 pipelines:
   pull-requests:
@@ -50,7 +60,7 @@ pipelines:
           - step:
               name: "ESLint"
               runs-on:
-                - self.hosted
+                - ci
               image: wodby/drupal-php:8.3-dev-4.61.2
               caches:
                 - node
@@ -76,14 +86,7 @@ pipelines:
              image: aquasec/trivy:latest
              script:
                - trivy fs --exit-code 1 --format table ./
-
   branches:
-    master:
-      - step:
-          <<: *deploy
-          deployment: Production
+    'master':
 
     '*.dev':
-      - step:
-          <<: *deploy
-          deployment: Development
