@@ -1,11 +1,10 @@
 definitions:
   steps:
     - step: &deploy
-      name: deploy
-      image: alpine:latest
+        name: deploy
+        image: alpine:latest
         runs-on:
           - self.hosted
-          - linux
         services:
           - docker
         script:
