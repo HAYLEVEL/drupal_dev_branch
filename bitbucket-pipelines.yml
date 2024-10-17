@@ -12,7 +12,7 @@ definitions:
           - eval $(ssh-agent -s)
           - mkdir -p ~/.ssh
           - (echo $SSH_PRIVATE_KEY | base64 -d > ~/.ssh/id_rsa)
-          - chmod 700 ~/.ssh
+          - chmod 700 ~/.ssh/id_rsa
           - ssh-keyscan $REMOTE_HOST >> ~/.ssh/known_hosts
           - chmod 644 ~/.ssh/known_hosts
           - |
