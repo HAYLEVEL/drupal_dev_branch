@@ -1,0 +1,90 @@
+definitions:
+  steps:
+    - step: &deploy
+      name: deploy
+      image: alpine:latest
+        runs-on:
+          - self.hosted
+          - linux
+        services:
+          - docker
+        script:
+          - 'command -v ssh-agent >/dev/null || ( apk add --update openssh )'
+          - eval $(ssh-agent -s)
+          - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+          - mkdir -p ~/.ssh
+          - chmod 700 ~/.ssh
+          - ssh-keyscan $REMOTE_HOST >> ~/.ssh/known_hosts
+          - chmod 644 ~/.ssh/known_hosts
+
+pipelines:
+  pull-requests:
+    '**':
+      - parallel:
+          - step:
+              name: "PHPCS"
+              runs-on:
+                - self.hosted
+              image: wodby/drupal-php:8.3-dev-4.61.2
+              caches:
+                - composer
+              script:
+                - git config --global --add safe.directory $BITBUCKET_CLONE_DIR
+                - git fetch origin $BITBUCKET_BRANCH $BITBUCKET_PR_DESTINATION_BRANCH
+                - composer install --no-progress
+                - wget -O - -q https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b ~/bin
+                - |
+                  CHANGED_FILES=$(git diff --name-only origin/$BITBUCKET_BRANCH origin/$BITBUCKET_PR_DESTINATION_BRANCH -- | grep -E '\.(php|module|install|theme)$' || true)
+                  echo "Changed files: $CHANGED_FILES"
+
+                # Run phpcs check on changed files
+                - |
+                  if [ -n "$CHANGED_FILES" ]; then
+                    vendor/bin/phpcs --standard=Drupal,DrupalPractice $CHANGED_FILES --report=checkstyle | tee phpcs_report.txt
+                  else
+                    echo "No PHP files changed."
+                    exit 0;
+                  fi
+                - cat phpcs_report.txt
+                - ~/bin/reviewdog -f=checkstyle -name="PHPCS" -reporter=bitbucket-code-report -fail-level=any < phpcs_report.txt
+
+          - step:
+              name: "ESLint"
+              runs-on:
+                - self.hosted
+              image: wodby/drupal-php:8.3-dev-4.61.2
+              caches:
+                - node
+                - composer
+              script:
+                - git config --global --add safe.directory $BITBUCKET_CLONE_DIR
+                - git fetch origin $BITBUCKET_BRANCH $BITBUCKET_PR_DESTINATION_BRANCH
+                - sudo apk add npm
+                - composer install --no-progress
+                - sudo npm install
+                - wget -O - -q https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b ~/bin
+                - |
+                  CHANGED_FILES=$(git diff --name-only origin/$BITBUCKET_BRANCH origin/$BITBUCKET_PR_DESTINATION_BRANCH | grep -E '\.(js)$' || true)
+                  echo "Changed files: $CHANGED_FILES"
+                - npx eslint --no-error-on-unmatched-pattern $CHANGED_FILES --format=checkstyle | tee eslint_report.txt
+                - cat eslint_report.txt
+                - ~/bin/reviewdog -f=checkstyle -name="ESLint" -reporter=bitbucket-code-report -fail-level=any < eslint_report.txt
+
+          - step:
+             name: "Trivy"
+             runs-on:
+                - self.hosted
+             image: aquasec/trivy:latest
+             script:
+               - trivy fs --exit-code 1 --format table ./
+
+  branches:
+    master:
+      - step:
+          <<: *deploy
+          deployment: Production
+
+    '*.dev':
+      - step:
+          <<: *deploy
+          deployment: Development
