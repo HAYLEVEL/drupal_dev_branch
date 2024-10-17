@@ -4,8 +4,6 @@ definitions:
         name: deploy
         runs-on:
           - self.hosted
-        services:
-          - docker
         script:
           - |
             ssh $REMOTE_USER@$REMOTE_HOST "
