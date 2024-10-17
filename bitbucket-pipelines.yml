@@ -15,7 +15,7 @@ definitions:
           - chmod 644 ~/.ssh/known_hosts
           - chmod 600 ~/.ssh/id_rsa
           - |
-            ssh $REMOTE_USER@$REMOTE_HOST "
+            ssh -i ~/.ssh/id_rsa $REMOTE_USER@$REMOTE_HOST "
               ls -la
             "
 pipelines:
