@@ -2,10 +2,17 @@ definitions:
   steps:
     - step: &deploy
         name: deploy
-        image: atlassian/default-image:4
+        image: alpine:latest
         runs-on:
           - self.hosted
         script:
+          - 'command -v ssh-agent >/dev/null || ( apk add --update openssh )'
+          - eval $(ssh-agent -s)
+          - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+          - mkdir -p ~/.ssh
+          - chmod 700 ~/.ssh
+          - ssh-keyscan $REMOTE_HOST >> ~/.ssh/known_hosts
+          - chmod 644 ~/.ssh/known_hosts
           - |
             ssh $REMOTE_USER@$REMOTE_HOST "
               ls -la
