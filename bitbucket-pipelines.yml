@@ -2,14 +2,11 @@ definitions:
   steps:
     - step: &deploy
         name: deploy
-        image: alpine:latest
         runs-on:
           - self.hosted
         services:
           - docker
         script:
-          - 'command -v ssh-agent >/dev/null || ( apk add --update openssh )'
-          - eval $(ssh-agent -s)
           - |
             ssh $REMOTE_USER@$REMOTE_HOST "
               ls -la
