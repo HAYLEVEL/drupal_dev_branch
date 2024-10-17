@@ -8,8 +8,9 @@ definitions:
         script:
           - 'command -v ssh-agent >/dev/null || ( apk add --update openssh )'
           - eval $(ssh-agent -s)
-          - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
           - mkdir -p ~/.ssh
+          - 'echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+          - '(echo $SSH_PRIVATE_KEY | base64 --decode > ~/.ssh/id_rsa)'
           - chmod 700 ~/.ssh
           - ssh-keyscan $REMOTE_HOST >> ~/.ssh/known_hosts
           - chmod 644 ~/.ssh/known_hosts
