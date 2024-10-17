@@ -2,7 +2,7 @@ definitions:
   steps:
     - step: &deploy
         name: deploy
-        image: atlassian/default-image:latest
+        image: atlassian/default-image:4
         runs-on:
           - self.hosted
         script:
