@@ -11,8 +11,6 @@ definitions:
           - |
             ssh $REMOTE_USER@$REMOTE_HOST "
               docker exec $ENVIRONMENT_CONTAINER sh -c 'ssh-keyscan bitbucket.org >> ~/.ssh/known_hosts'
-              docker exec $ENVIRONMENT_CONTAINER sh -c 'eval $(ssh-agent -s)'
-              docker exec $ENVIRONMENT_CONTAINER sh -c 'echo "$SSH_BITBUCKET_PRIVATE_KEY" | tr -d '\r' | ssh-add -'
               docker exec $ENVIRONMENT_CONTAINER sh -c 'git pull origin $BITBUCKET_BRANCH'
               ls -la
             "
