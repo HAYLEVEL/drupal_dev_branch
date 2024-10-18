@@ -10,6 +10,7 @@ definitions:
           - eval $(ssh-agent -s)
           - |
             ssh $REMOTE_USER@$REMOTE_HOST "
+              docker exec $ENVIRONMENT_CONTAINER ssh-keyscan bitbucket.org >> ~/.ssh/known_hosts
               ls -la
             "
 pipelines:
