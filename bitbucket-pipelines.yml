@@ -10,7 +10,7 @@ definitions:
           - eval $(ssh-agent -s)
           - |
             ssh $REMOTE_USER@$REMOTE_HOST "
-              docker exec $ENVIRONMENT_CONTAINER sh -c 'git fetch && git checkout origin $BITBUCKET_BRANCH'
+              docker exec $ENVIRONMENT_CONTAINER sh -c 'git fetch && git checkout $BITBUCKET_BRANCH'
               docker exec $ENVIRONMENT_CONTAINER sh -c 'git pull origin $BITBUCKET_BRANCH'
               echo "Starting database backup--------------------------------------"
               docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush sql:dump --result-file=/var/www/html/back_sql/backup.sql --gzip --skip-tables-list=cache*'
