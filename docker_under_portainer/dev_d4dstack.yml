@@ -24,9 +24,10 @@ services:
       - /var/www/dev:/var/www/html:cached
       - php_ssh:/home/wodby/.ssh
 
-  nginx-dev:
+  nginx:
     image: wodby/nginx:$NGINX_TAG
     container_name: "nginx-dev"
+
     depends_on:
       - "php"
     environment:
@@ -76,7 +77,6 @@ services:
       - "traefik.http.routers.phpmyadmin-dev.tls.certresolver=myresolver"
       - "traefik.http.services.phpmyadmin-dev.loadbalancer.server.port=80"
 
-
   memcached:
     image: wodby/memcached:$MEMCACHED_TAG
     container_name: "memcached-dev"
@@ -84,8 +84,6 @@ services:
       MEMCACHED_MEMORY_LIMIT: 64 # Memory limit in MB
       MEMCACHED_MAX_CONNECTIONS: 1024 # Maximum number of connections
     command: memcached -m 512 -t 4 -c 512 -vv
-#    ports:
-#      - "11211:11211"
     labels:
       - "traefik.enable=false"
 
@@ -113,9 +111,6 @@ services:
       - "traefik.http.routers.solr-dev.entrypoints=websecure"
       - "traefik.http.routers.solr-dev.tls.certresolver=myresolver"
       - "traefik.http.services.solr-dev.loadbalancer.server.port=8983"
-      #Auth
-      - "traefik.http.middlewares.auth.basicauth.users=$BA_USER:$BA_PASSWORD"
-      - "traefik.http.routers.solr-dev.middlewares=auth"
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:$ELASTICSEARCH_TAG
@@ -130,7 +125,7 @@ services:
 networks:
   default:
     external:
-      name: traefik-dev
+      name: dev_d4dstack_default
 
 volumes:
   mariadb-datavolume-dev:
