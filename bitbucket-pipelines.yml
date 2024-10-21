@@ -5,17 +5,22 @@ definitions:
         image: alpine:latest
         runs-on:
           - self.hosted
-        services:
-          - docker
         script:
           - 'command -v ssh-agent >/dev/null || ( apk add --update openssh )'
           - eval $(ssh-agent -s)
-          - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-          - mkdir -p ~/.ssh
-          - chmod 700 ~/.ssh
-          - ssh-keyscan $REMOTE_HOST >> ~/.ssh/known_hosts
-          - chmod 644 ~/.ssh/known_hosts
-
+          - |
+            ssh $REMOTE_USER@$REMOTE_HOST "
+              docker exec $ENVIRONMENT_CONTAINER sh -c 'git fetch && git checkout $BITBUCKET_BRANCH'
+              docker exec $ENVIRONMENT_CONTAINER sh -c 'git pull origin $BITBUCKET_BRANCH'
+              echo "Starting database backup--------------------------------------"
+              docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush sql:dump --result-file=/var/www/html/back_sql/backup.sql --gzip --skip-tables-list=cache*'
+              docker cp $ENVIRONMENT_CONTAINER:/var/www/html/back_sql/backup.sql.gz ~/back_sql/$DEPLOYMENT_ENVIRONMENT/backup_$BITBUCKET_COMMIT.sql.gz
+              echo "Deploy to docker stack"
+              docker start $NODE_CONTAINER
+              sleep 20
+              docker exec $ENVIRONMENT_CONTAINER sh -c 'composer install --no-dev --optimize-autoloader'
+              docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush deploy -y -v'
+            "
 pipelines:
   pull-requests:
     '**':
