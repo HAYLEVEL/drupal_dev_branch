@@ -14,15 +14,14 @@ services:
       - mariadb-datavolume:/var/lib/mysql
 
   php:
-    image: wodby/drupal-php:$PHP_TAG
-    container_name: "php"
-    environment:
-      PHP_EXTENSIONS_DISABLE: xhprof,spx
+    build:
+      context: ../Dockerfile
+      dockerfile: Dockerfile
+    container_name: "php-dev"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      - /var/www/html:/var/www/html:cached
-      - php_ssh:/home/wodby/.ssh
+      - /var/www/dev:/var/www/html:cached
 
   nginx:
     image: wodby/nginx:$NGINX_TAG
