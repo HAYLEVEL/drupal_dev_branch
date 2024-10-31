@@ -9,7 +9,7 @@ NODE_CONTAINER=$5
 BITBUCKET_COMMIT=$6
 
 # Connect to remote
-ssh $REMOTE_USER@$REMOTE_HOST << EOF
+ssh -t $REMOTE_USER@$REMOTE_HOST << EOF
 
   deploy_func
   DEPLOY_EXIT_CODE=\$?
