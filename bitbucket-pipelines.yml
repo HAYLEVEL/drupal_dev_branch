@@ -8,7 +8,7 @@ definitions:
         script:
           - 'command -v ssh-agent >/dev/null || ( apk add --update openssh )'
           - eval $(ssh-agent -s)
-          - ./bitbucket_deploy.sh "$REMOTE_USER" "$REMOTE_HOST" "$ENVIRONMENT_CONTAINER" "$BITBUCKET_BRANCH" "$NODE_CONTAINER" "$BITBUCKET_COMMIT"
+          - bitbucket_deploy.sh "$REMOTE_USER" "$REMOTE_HOST" "$ENVIRONMENT_CONTAINER" "$BITBUCKET_BRANCH" "$NODE_CONTAINER" "$BITBUCKET_COMMIT"
 
 pipelines:
   pull-requests:
