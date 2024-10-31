@@ -21,7 +21,7 @@ If you need to use this script do these steps on host machine before:
    ```
 2. Set permissions on early-created dirs.
    ```
-   chown $USER:$USER /home/backups/files
+   sudo chown $USER:$USER /home/backups/files
    ```
 3. Make script executable.(chmod +x backup.sh)
    ```
