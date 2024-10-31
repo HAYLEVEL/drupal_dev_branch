@@ -9,7 +9,7 @@ services:
       - "--log.level=DEBUG"
       - "--api.insecure=true"
       - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=traefik-net"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare"
@@ -44,7 +44,5 @@ services:
 networks:
   traefik-net:
     name: traefik-net
-    external: true
-
 volumes:
   portainer_data:

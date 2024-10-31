@@ -10,22 +10,27 @@ services:
       MYSQL_PASSWORD: $DB_PASSWORD
       MYSQL_TRANSACTION_ISOLATION: READ-COMMITTED
     volumes:
-      - /var/www/html/back_sql:/docker-entrypoint-initdb.d
+      - /var/www/html/back_sql/back_mariadb:/docker-entrypoint-initdb.d
       - mariadb-datavolume:/var/lib/mysql
 
   php:
-    build:
-      context: ../Dockerfile
-      dockerfile: Dockerfile
+    image: wodby/drupal-php:$PHP_TAG
     container_name: "php"
+    environment:
+      PHP_EXTENSIONS_DISABLE: xhprof,spx
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      - /var/www/dev:/var/www/html:cached
+      - /var/www/html:/var/www/html:cached
+      - php_ssh:/home/wodby/.ssh
 
   nginx:
     image: wodby/nginx:$NGINX_TAG
     container_name: "nginx"
+    networks:
+      - default
+      - traefik-net
+
     depends_on:
       - php
     environment:
@@ -48,6 +53,9 @@ services:
   adminer:
     image: wodby/adminer:$ADMINER_TAG
     container_name: "adminer"
+    networks:
+      - default
+      - traefik-net
     depends_on:
       - mariadb
     environment:
@@ -62,6 +70,9 @@ services:
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:$PHPMYADMIN_TAG
     container_name: "phpmyadmin"
+    networks:
+      - default
+      - traefik-net
     depends_on:
       - mariadb
     environment:
@@ -73,6 +84,7 @@ services:
       - "traefik.http.routers.phpmyadmin.tls.certresolver=myresolver"
       - "traefik.http.services.phpmyadmin.loadbalancer.server.port=80"
 
+
   memcached:
     image: wodby/memcached:$MEMCACHED_TAG
     container_name: "memcached"
@@ -80,10 +92,6 @@ services:
       MEMCACHED_MEMORY_LIMIT: 64 # Memory limit in MB
       MEMCACHED_MAX_CONNECTIONS: 1024 # Maximum number of connections
     command: memcached -m 512 -t 4 -c 512 -vv
-    ports:
-      - "11211:11211"
-    labels:
-      - "traefik.enable=false"
 
   node:
     image: wodby/node:$NODE_TAG
@@ -92,6 +100,7 @@ services:
     volumes:
       - /var/www/html:/var/www/html
     command: sh -c 'npm install && npm run build'
+
 
   backup:
     image: wodby/drupal-php:$PHP_TAG
@@ -110,6 +119,9 @@ services:
   solr:
     image: wodby/solr:$SOLR_TAG
     container_name: "solr"
+    networks:
+      - default
+      - traefik-net
     environment:
       SOLR_DEFAULT_CONFIG_SET: $SOLR_DEFAULT_CONFIG_SET
       SOLR_HEAP: 1024m
@@ -138,16 +150,11 @@ services:
       - elasticsearch-data:/usr/share/elasticsearch/data
 
 networks:
-  default:
-    external:
-      name: traefik-net
-
+  traefik-net:
+    external: true
+    name: traefik-net
 volumes:
   mariadb-datavolume:
-    driver: local
   php_ssh:
-    driver: local
   solr-data:
-    driver: local
   elasticsearch-data:
-    driver: local
