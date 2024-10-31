@@ -2,12 +2,13 @@ definitions:
   steps:
     - step: &deploy
         name: deploy
-        image: alpine:latest
+        image: atlassian/default-image:3
+
         runs-on:
           - self.hosted
         script:
-          - 'command -v ssh-agent >/dev/null || ( apk add --update openssh )'
-          - eval $(ssh-agent -s)
+#          - 'command -v ssh-agent >/dev/null || ( apk add --update openssh )'
+#          - eval $(ssh-agent -s)
           - ./bitbucket_deploy.sh "$REMOTE_USER" "$REMOTE_HOST" "$ENVIRONMENT_CONTAINER" "$BITBUCKET_BRANCH" "$NODE_CONTAINER" "$BITBUCKET_COMMIT"
 
 pipelines:
