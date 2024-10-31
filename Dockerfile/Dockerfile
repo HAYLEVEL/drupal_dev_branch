@@ -1,7 +1,7 @@
-# Step 1: Use Ubuntu base image
+# Use Ubuntu base image
 FROM ubuntu:24.04
 
-# Step 2: Install required packages
+# Install required packages
 RUN apt-get update && apt-get install -y \
     software-properties-common \
     curl \
@@ -28,7 +28,7 @@ RUN apt-get install -y \
     php-memcache \
     php-memcached
 
-# Step 4: Install Composer
+# Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Add Composer global bin to PATH
@@ -43,8 +43,11 @@ RUN mkdir -p /run/php && chown www-data:www-data /run/php
 # Configure PHP-FPM to listen on a Unix socket
 COPY ./www.conf /etc/php/8.3/fpm/pool.d/www.conf
 
-# Step 5: Set working directory
+# Set working directory
 WORKDIR /var/www/html
 
-# Step 3: Start PHP
+# Copy site in image
+COPY ../ /var/www/html
+
+# Start PHP
 CMD ["php-fpm8.3", "-F"]
