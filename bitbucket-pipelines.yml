@@ -8,19 +8,8 @@ definitions:
         script:
           - 'command -v ssh-agent >/dev/null || ( apk add --update openssh )'
           - eval $(ssh-agent -s)
-          - |
-            ssh $REMOTE_USER@$REMOTE_HOST "
-              docker exec $ENVIRONMENT_CONTAINER sh -c 'git fetch && git checkout $BITBUCKET_BRANCH'
-              docker exec $ENVIRONMENT_CONTAINER sh -c 'git pull origin $BITBUCKET_BRANCH'
-              echo "Starting database backup--------------------------------------"
-              docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush sql:dump --result-file=/var/www/html/back_sql/backup.sql --gzip --skip-tables-list=cache*'
-              docker cp $ENVIRONMENT_CONTAINER:/var/www/html/back_sql/backup.sql.gz ~/back_sql/$DEPLOYMENT_ENVIRONMENT/backup_$BITBUCKET_COMMIT.sql.gz
-              echo "Deploy to docker stack"
-              docker start $NODE_CONTAINER
-              sleep 20
-              docker exec $ENVIRONMENT_CONTAINER sh -c 'composer install --no-dev --optimize-autoloader'
-              docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush deploy -y -v'
-            "
+          - ./bitbucket_deploy.sh "$REMOTE_USER" "$REMOTE_HOST" "$ENVIRONMENT_CONTAINER" "$BITBUCKET_BRANCH" "$NODE_CONTAINER" "$BITBUCKET_COMMIT"
+
 pipelines:
   pull-requests:
     '**':
@@ -35,22 +24,35 @@ pipelines:
               script:
                 - git config --global --add safe.directory $BITBUCKET_CLONE_DIR
                 - git fetch origin $BITBUCKET_BRANCH $BITBUCKET_PR_DESTINATION_BRANCH
-                - composer install --no-progress
+                - composer global config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+                - composer global require drupal/coder:^8.3 --no-progress --prefer-dist
                 - wget -O - -q https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b ~/bin
                 - |
-                  CHANGED_FILES=$(git diff --name-only origin/$BITBUCKET_BRANCH origin/$BITBUCKET_PR_DESTINATION_BRANCH -- | grep -E '\.(php|module|install|theme)$' || true)
-                  echo "Changed files: $CHANGED_FILES"
-
+                  if [ -n "$BITBUCKET_PR_ID" ]; then
+                    # Get changed PHP-related files for pull requests
+                    CHANGED_FILES=$(git diff --name-only origin/$BITBUCKET_BRANCH origin/$BITBUCKET_PR_DESTINATION_BRANCH -- | grep -E '\.(php|module|install|theme|inc|test|profile|css|info|txt|md|yml)$' || true)
+                  else
+                    # For manual runs, check all PHP-related files under custom directories
+                    CHANGED_FILES=$(find web/modules/custom/**/ web/themes/custom/**/ -type f -name '*.php' -o -name '*.module' -o -name '*.install' -o -name '*.theme' -o -name '*.inc' -o -name '*.test' -o -name '*.profile' -o -name '*.css' -o -name '*.info' -o -name '.txt' -o -name '*.md' -o -name '*.yml')
+                  fi
+                  echo "Files that will be checked: $CHANGED_FILES"
                 # Run phpcs check on changed files
                 - |
+
                   if [ -n "$CHANGED_FILES" ]; then
-                    vendor/bin/phpcs --standard=Drupal,DrupalPractice $CHANGED_FILES --report=checkstyle | tee phpcs_report.txt
+                    ~/.composer/vendor/bin/phpcs --standard=Drupal,DrupalPractice $CHANGED_FILES --report=checkstyle | tee phpcs_report.txt
                   else
-                    echo "No PHP files changed."
+                    echo "No Drupal related files "
                     exit 0;
                   fi
                 - cat phpcs_report.txt
-                - ~/bin/reviewdog -f=checkstyle -name="PHPCS" -reporter=bitbucket-code-report -fail-level=any < phpcs_report.txt
+                - |
+                  if [ -n "$BITBUCKET_PR_ID" ]; then
+                    ~/bin/reviewdog -f=checkstyle -name="PHPCS" -reporter=bitbucket-code-report -fail-level=any < phpcs_report.txt
+                  elif [ -s phpcs_report.txt ]; then
+                    echo "PHPCS found at least one issue"
+                    exit 1;
+                  fi
 
           - step:
               name: "ESLint"
@@ -59,20 +61,29 @@ pipelines:
               image: wodby/drupal-php:8.3-dev-4.61.2
               caches:
                 - node
-                - composer
               script:
                 - git config --global --add safe.directory $BITBUCKET_CLONE_DIR
                 - git fetch origin $BITBUCKET_BRANCH $BITBUCKET_PR_DESTINATION_BRANCH
                 - sudo apk add npm
-                - composer install --no-progress
                 - sudo npm install
                 - wget -O - -q https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b ~/bin
                 - |
-                  CHANGED_FILES=$(git diff --name-only origin/$BITBUCKET_BRANCH origin/$BITBUCKET_PR_DESTINATION_BRANCH | grep -E '\.(js)$' || true)
-                  echo "Changed files: $CHANGED_FILES"
-                - npx eslint --no-error-on-unmatched-pattern $CHANGED_FILES --format=checkstyle | tee eslint_report.txt
-                - cat eslint_report.txt
-                - ~/bin/reviewdog -f=checkstyle -name="ESLint" -reporter=bitbucket-code-report -fail-level=any < eslint_report.txt
+                  if [ -n "$BITBUCKET_PR_ID" ]; then
+                    # Get changed JS files for pull requests
+                    CHANGED_FILES=$(git diff --name-only origin/$BITBUCKET_BRANCH origin/$BITBUCKET_PR_DESTINATION_BRANCH | grep -E '\.(js)$' || true)
+                  else
+                    # For manual runs, check all JS files under custom directories
+                    CHANGED_FILES=$(find web/modules/custom/**/ web/themes/custom/**/ -type f -name '*.js')
+                  fi
+                  echo "Files that will be checked: $CHANGED_FILES"
+                - npx eslint -c ci_configuration/.eslintrc.json --no-error-on-unmatched-pattern $CHANGED_FILES | tee eslint_report.txt
+                - |
+                  if [ -n "$BITBUCKET_PR_ID" ]; then
+                    ~/bin/reviewdog -f=eslint -name="ESLint" -reporter=bitbucket-code-report -fail-level=any < eslint_report.txt
+                  elif [ -s eslint_report.txt ]; then
+                    echo "ESLint found at least one issue"
+                    exit 1;
+                  fi
 
           - step:
              name: "Trivy"
@@ -81,7 +92,6 @@ pipelines:
              image: aquasec/trivy:latest
              script:
                - trivy fs --exit-code 1 --format table ./
-
   branches:
     master:
       - step:
