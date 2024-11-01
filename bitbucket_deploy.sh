@@ -15,7 +15,7 @@ ssh $REMOTE_USER@$REMOTE_HOST << EOF
 
 deploy_func() {( set -e  # Exit if any command within the function fails
     docker exec $ENVIRONMENT_CONTAINER sh -c 'git config --global --add safe.directory /var/www/html'
-    docker exec $ENVIRONMENT_CONTAINER git fetch origin && git checkout origin/$BITBUCKET_BRANCH
+    docker exec $ENVIRONMENT_CONTAINER git checkout origin/$BITBUCKET_BRANCH
     docker exec $ENVIRONMENT_CONTAINER git pull origin/$BITBUCKET_BRANCH
 
     echo "Starting database backup--------------------------------------"
