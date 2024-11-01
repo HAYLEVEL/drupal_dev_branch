@@ -16,6 +16,7 @@ ssh $REMOTE_USER@$REMOTE_HOST << EOF
   cd "$SITE_DIR"
 
 deploy_func() {( set -e  # Exit if any command within the function fails
+    cd $SITE_DIR
     git checkout origin/$BITBUCKET_BRANCH
     git pull origin $BITBUCKET_BRANCH
 
