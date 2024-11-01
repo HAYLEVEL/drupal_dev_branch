@@ -6,7 +6,7 @@ definitions:
         runs-on:
           - self.hosted
         script:
-          - ./bitbucket_deploy.sh "$REMOTE_USER" "$REMOTE_HOST" "$ENVIRONMENT_CONTAINER" "$BITBUCKET_BRANCH" "$NODE_CONTAINER" "$BITBUCKET_COMMIT" "SITE_DIR"
+          - ./bitbucket_deploy.sh "$REMOTE_USER" "$REMOTE_HOST" "$ENVIRONMENT_CONTAINER" "$BITBUCKET_BRANCH" "$NODE_CONTAINER" "$BITBUCKET_COMMIT" "$SITE_DIR"
 
 pipelines:
   pull-requests:
