@@ -9,7 +9,7 @@ NODE_CONTAINER=$5
 BITBUCKET_COMMIT=$6
 
 # Connect to remote
-ssh -t $REMOTE_USER@$REMOTE_HOST << EOF
+ssh $REMOTE_USER@$REMOTE_HOST << EOF
   CURRENT_COMMIT_HASH=\$(docker exec $ENVIRONMENT_CONTAINER sh -c 'git rev-parse HEAD')
   echo \$CURRENT_COMMIT_HASH
 
