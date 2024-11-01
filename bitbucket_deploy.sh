@@ -57,7 +57,6 @@ if [ \$DEPLOY_EXIT_CODE -ne 0 ]; then
     fi
 else
     echo "Deployment succeeded-----------------------------------------"
-    exit 0
 fi
-
+exit 0
 EOF
