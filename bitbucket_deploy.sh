@@ -30,8 +30,8 @@ deploy_func() {( set -e  # Exit if any command within the function fails
   )}
 
 rollback_func() {( set -e  # Exit if any command within the function fails
-    docker exec $ENVIRONMENT_CONTAINER sh -c 'git checkout $CURRENT_COMMIT_HASH'
-    echo "Reverting Drupal site to previous state----------------------"
+    docker exec $ENVIRONMENT_CONTAINER sh -c 'git checkout \$CURRENT_COMMIT_HASH'
+    echo "Reverting Drupal site to commit hash \$CURRENT_COMMIT_HASH"
     docker exec $ENVIRONMENT_CONTAINER sh -c 'composer install --optimize-autoloader'
     docker start $NODE_CONTAINER
     sleep 20
@@ -42,15 +42,15 @@ rollback_func() {( set -e  # Exit if any command within the function fails
   DEPLOY_EXIT_CODE=\$?
 
   if [ \$DEPLOY_EXIT_CODE -ne 0 ]; then
-    echo "Deployment failed with exit code \$DEPLOY_EXIT_CODE----------"
-    echo "Start reverting Drupal site to commit hash $CURRENT_COMMIT_HASH"
+    echo "Deployment failed with exit code \$DEPLOY_EXIT_CODE"
+    echo "Start reverting Drupal site to commit hash \$CURRENT_COMMIT_HASH"
     rollback_func
     ROLLBACK_EXIT_CODE=\$?
     if [ \$ROLLBACK_EXIT_CODE -ne 0 ]; then
-      echo "Rollback failed with exit code \$ROLLBACK_EXIT_CODE--------"
+      echo "Rollback failed with exit code \$ROLLBACK_EXIT_CODE"
       exit \$ROLLBACK_EXIT_CODE
     else
-      echo "Rollback succeeded but deployment failed with exit code \$DEPLOY_EXIT_CODE---"
+      echo "Rollback succeeded but deployment failed with exit code \$DEPLOY_EXIT_CODE"
       exit \$DEPLOY_EXIT_CODE
     fi
   else
