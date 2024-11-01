@@ -12,7 +12,7 @@ SITE_DIR=$7
 # Connect to remote
 ssh -t $REMOTE_USER@$REMOTE_HOST << EOF
   CURRENT_COMMIT_HASH=\$(docker exec $ENVIRONMENT_CONTAINER sh -c 'git rev-parse HEAD')
-  echo "start12"
+  echo "start123"
   cd $SITE_DIR
 
 deploy_func() {( set -e  # Exit if any command within the function fails
@@ -32,8 +32,7 @@ deploy_func() {( set -e  # Exit if any command within the function fails
 
 rollback_func() {( set -e  # Exit if any command within the function fails
     echo "Reverting Drupal site to commit hash \$CURRENT_COMMIT_HASH"
-    echo \$CURRENT_COMMIT_HASH
-    git checkout $CURRENT_COMMIT_HASH
+    git checkout \$CURRENT_COMMIT_HASH
     docker exec $ENVIRONMENT_CONTAINER sh -c 'composer install --optimize-autoloader'
     docker start $NODE_CONTAINER
     sleep 20
