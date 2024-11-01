@@ -7,16 +7,17 @@ ENVIRONMENT_CONTAINER=$3
 BITBUCKET_BRANCH=$4
 NODE_CONTAINER=$5
 BITBUCKET_COMMIT=$6
+SITE_DIR=$7
 
 # Connect to remote
 ssh $REMOTE_USER@$REMOTE_HOST << EOF
   CURRENT_COMMIT_HASH=\$(docker exec $ENVIRONMENT_CONTAINER sh -c 'git rev-parse HEAD')
   echo "start"
+  cd $SITE_DIR
 
 deploy_func() {( set -e  # Exit if any command within the function fails
-    docker exec $ENVIRONMENT_CONTAINER sh -c 'git config --global --add safe.directory /var/www/html'
-    docker exec $ENVIRONMENT_CONTAINER git checkout origin/$BITBUCKET_BRANCH
-    docker exec $ENVIRONMENT_CONTAINER git pull origin $BITBUCKET_BRANCH
+    git checkout origin/$BITBUCKET_BRANCH
+    git pull origin $BITBUCKET_BRANCH
 
     echo "Starting database backup--------------------------------------"
     docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush sql:dump --result-file=/var/www/html/back_sql/backup.sql --gzip --skip-tables-list=cache*'
@@ -26,12 +27,12 @@ deploy_func() {( set -e  # Exit if any command within the function fails
     docker start $NODE_CONTAINER
     sleep 20
     docker exec $ENVIRONMENT_CONTAINER sh -c 'composer install --optimize-autoloader'
-    docker exec p$ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush deploy -y -v'
+    docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush deploy -y -v'
 )}
 
 rollback_func() {( set -e  # Exit if any command within the function fails
     echo "Reverting Drupal site to commit hash \$CURRENT_COMMIT_HASH"
-    docker exec $ENVIRONMENT_CONTAINER git checkout $CURRENT_COMMIT_HASH
+    git checkout $CURRENT_COMMIT_HASH
     docker exec $ENVIRONMENT_CONTAINER sh -c 'composer install --optimize-autoloader'
     docker start $NODE_CONTAINER
     sleep 20
