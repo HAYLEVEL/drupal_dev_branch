@@ -25,8 +25,8 @@ deploy_func() {( set -e  # Exit if any command within the function fails
     echo "Deploy to docker stack----------------------------------------"
     docker start $NODE_CONTAINER
     sleep 20
-    docker exec $ENVIRONMENT_CONTAINER sh -c 'composer install --optimize-autoloader'
-    docker exec p$ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush deploy -y -v'
+    docker exec p$ENVIRONMENT_CONTAINER sh -c 'composer install --optimize-autoloader'
+    docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush deploy -y -v'
 )}
 
 rollback_func() {( set -e  # Exit if any command within the function fails
