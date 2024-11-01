@@ -10,10 +10,10 @@ BITBUCKET_COMMIT=$6
 SITE_DIR=$7
 
 # Connect to remote
-ssh $REMOTE_USER@$REMOTE_HOST << EOF
+ssh -t $REMOTE_USER@$REMOTE_HOST << EOF
   CURRENT_COMMIT_HASH=\$(docker exec $ENVIRONMENT_CONTAINER sh -c 'git rev-parse HEAD')
   echo "start"
-  cd "$SITE_DIR"
+  echo $SITE_DIR
 
 deploy_func() {( set -e  # Exit if any command within the function fails
     cd $SITE_DIR
@@ -41,6 +41,7 @@ rollback_func() {( set -e  # Exit if any command within the function fails
 )}
 
 ########################################################################
+cd "$SITE_DIR"
 deploy_func
 DEPLOY_EXIT_CODE=\$?
 if [ \$DEPLOY_EXIT_CODE -ne 0 ]; then
