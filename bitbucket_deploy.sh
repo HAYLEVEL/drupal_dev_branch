@@ -9,11 +9,13 @@ NODE_CONTAINER=$5
 BITBUCKET_COMMIT=$6
 SITE_DIR=$7
 
+echo $SITE_DIR
 # Connect to remote
 ssh -t $REMOTE_USER@$REMOTE_HOST << EOF
   CURRENT_COMMIT_HASH=\$(docker exec $ENVIRONMENT_CONTAINER sh -c 'git rev-parse HEAD')
   echo "start"
   echo $SITE_DIR
+  echo \$SITE_DIR
 
 deploy_func() {( set -e  # Exit if any command within the function fails
     cd $SITE_DIR
