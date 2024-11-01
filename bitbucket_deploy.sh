@@ -10,10 +10,10 @@ BITBUCKET_COMMIT=$6
 SITE_DIR=$7
 
 # Connect to remote
-ssh -t $REMOTE_USER@$REMOTE_HOST << EOF
-  CURRENT_COMMIT_HASH=\$(docker exec $ENVIRONMENT_CONTAINER sh -c 'git rev-parse HEAD')
-  echo "start123"
-  cd $SITE_DIR
+ssh $REMOTE_USER@$REMOTE_HOST << EOF
+set -e
+CURRENT_COMMIT_HASH=\$(docker exec $ENVIRONMENT_CONTAINER sh -c 'git rev-parse HEAD')
+cd $SITE_DIR
 
 deploy_func() {( set -e  # Exit if any command within the function fails
     git checkout origin/$BITBUCKET_BRANCH
@@ -27,7 +27,7 @@ deploy_func() {( set -e  # Exit if any command within the function fails
     docker start $NODE_CONTAINER
     sleep 20
     docker exec $ENVIRONMENT_CONTAINER sh -c 'composer install --optimize-autoloader'
-    docker exec p$ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush deploy -y -v'
+    docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush deploy -y -v'
 )}
 
 rollback_func() {( set -e  # Exit if any command within the function fails
