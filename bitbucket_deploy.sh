@@ -11,7 +11,6 @@ SITE_DIR=$7
 
 # Connect to remote
 ssh $REMOTE_USER@$REMOTE_HOST << EOF
-set -e
 CURRENT_COMMIT_HASH=\$(docker exec $ENVIRONMENT_CONTAINER sh -c 'git rev-parse HEAD')
 cd $SITE_DIR
 
@@ -57,6 +56,6 @@ if [ \$DEPLOY_EXIT_CODE -ne 0 ]; then
     fi
 else
     echo "Deployment succeeded-----------------------------------------"
+    exit 0
 fi
-exit 0
 EOF
