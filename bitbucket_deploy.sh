@@ -13,7 +13,7 @@ SITE_DIR=$7
 ssh $REMOTE_USER@$REMOTE_HOST << EOF
   CURRENT_COMMIT_HASH=\$(docker exec $ENVIRONMENT_CONTAINER sh -c 'git rev-parse HEAD')
   echo "start"
-  cd $SITE_DIR
+  cd "$SITE_DIR"
 
 deploy_func() {( set -e  # Exit if any command within the function fails
     git checkout origin/$BITBUCKET_BRANCH
