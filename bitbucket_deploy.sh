@@ -39,13 +39,14 @@ rollback_func() {( set -e  # Exit if any command within the function fails
 
 ########################################################################
 deploy_func || {
-  echo "Deployment failed, starting rollback to commit hash \$CURRENT_COMMIT_HASH"
-  rollback_func || {
-    echo "Rollback failed----------------------------------------------"
+    echo "Deployment failed, starting rollback to commit hash \$CURRENT_COMMIT_HASH"
+    rollback_func || {
+      echo "Rollback failed----------------------------------------------"
+      exit 1
+    }
+    echo "Rollback succeeded---------------------------------------------"
     exit 1
-  }
-  exit 1
 }
 
-echo "Deployment succeeded---------------------------------------------"
+echo "Deployment succeeded-------------------------------------------"
 EOF
