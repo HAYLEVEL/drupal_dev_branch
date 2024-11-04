@@ -13,9 +13,9 @@ SITE_DIR=$7
 ssh $REMOTE_USER@$REMOTE_HOST << EOF
 CURRENT_COMMIT_HASH=\$(docker exec $ENVIRONMENT_CONTAINER sh -c 'git rev-parse HEAD')
 
-red() { echo -e "\033[0;31m\$1\033[0m" }
-green() { echo -e "\033[0;32m\$1\033[0m" }
-yellow() { echo -e "\033[1;33m\$1\033[0m" }
+red() { echo -e "\033[0;31m\$1\033[0m"; }
+green() { echo -e "\033[0;32m\$1\033[0m"; }
+yellow() { echo -e "\033[1;33m\$1\033[0m"; }
 
 deploy_func() {( set -e  # Exit if any command within the function fails
     git checkout origin/$BITBUCKET_BRANCH
