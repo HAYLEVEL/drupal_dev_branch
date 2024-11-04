@@ -18,6 +18,16 @@ red() { echo -e "\033[0;31m\$1\033[0m"; }
 green() { echo -e "\033[0;32m\$1\033[0m"; }
 yellow() { echo -e "\033[1;33m\$1\033[0m"; }
 
+activate_maintenance_mode() {( set -e
+    docker exec $ENVIRONMENT_CONTAINER sh -c 'drush state:set system.maintenance_mode 1'
+    yellow "Maintenance mode activated."
+)}
+
+disable_maintenance_mode() {( set -e
+    docker exec $ENVIRONMENT_CONTAINER sh -c 'drush state:set system.maintenance_mode 0'
+    yellow "Maintenance mode disabled."
+)}
+
 deploy_func() {( set -e  # Exit if any command within the function fails
     git checkout origin/$BITBUCKET_BRANCH
     git pull origin $BITBUCKET_BRANCH
@@ -27,8 +37,7 @@ deploy_func() {( set -e  # Exit if any command within the function fails
     docker cp $ENVIRONMENT_CONTAINER:/var/www/html/back_sql/backup.sql.gz ~/back_sql/$DEPLOYMENT_ENVIRONMENT/backup_$BITBUCKET_COMMIT.sql.gz
 
     yellow "Deploy to docker stack----------------------------------------"
-    docker start $NODE_CONTAINER
-    sleep 20
+    docker start -i $NODE_CONTAINER
     docker exec $ENVIRONMENT_CONTAINER sh -c 'composer install --optimize-autoloader'
     docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush deploy -y -v'
 )}
@@ -43,6 +52,7 @@ rollback_func() {( set -e  # Exit if any command within the function fails
 )}
 
 ########################################################################
+activate_maintenance_mode
 deploy_func
 DEPLOY_EXIT_CODE=\$?
 if [ \$DEPLOY_EXIT_CODE -ne 0 ]; then
@@ -50,14 +60,14 @@ if [ \$DEPLOY_EXIT_CODE -ne 0 ]; then
     rollback_func
     ROLLBACK_EXIT_CODE=\$?
     if [ \$ROLLBACK_EXIT_CODE -ne 0 ]; then
-        red "Rollback failed with exit code \$ROLLBACK_EXIT_CODE"
+        red "Rollback failed with exit code \$ROLLBACK_EXIT_CODE" && disable_maintenance_mode
         exit \$ROLLBACK_EXIT_CODE
     else
-        yellow "Rollback succeeded but deployment failed with exit code \$DEPLOY_EXIT_CODE"
+        yellow "Rollback succeeded but deployment failed with exit code \$DEPLOY_EXIT_CODE" && disable_maintenance_mode
         exit \$DEPLOY_EXIT_CODE
     fi
 else
-    green "Deployment succeeded-----------------------------------------"
+    green "Deployment succeeded-----------------------------------------" && disable_maintenance_mode
     exit 0
 fi
 EOF
