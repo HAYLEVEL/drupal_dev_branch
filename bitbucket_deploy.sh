@@ -11,11 +11,12 @@ SITE_DIR=$7
 
 # Connect to remote
 ssh $REMOTE_USER@$REMOTE_HOST << EOF
+cd $SITE_DIR
 CURRENT_COMMIT_HASH=\$(docker exec $ENVIRONMENT_CONTAINER sh -c 'git rev-parse HEAD')
 
-red() { echo -e "\033[0;31m\$1\033[0m" }
-green() { echo -e "\033[0;32m\$1\033[0m" }
-yellow() { echo -e "\033[1;33m\$1\033[0m" }
+red() { echo -e "\033[0;31m\$1\033[0m"; }
+green() { echo -e "\033[0;32m\$1\033[0m"; }
+yellow() { echo -e "\033[1;33m\$1\033[0m"; }
 
 deploy_func() {( set -e  # Exit if any command within the function fails
     git checkout origin/$BITBUCKET_BRANCH
@@ -42,7 +43,6 @@ rollback_func() {( set -e  # Exit if any command within the function fails
 )}
 
 ########################################################################
-cd "\$SITE_DIR"
 deploy_func
 DEPLOY_EXIT_CODE=\$?
 if [ \$DEPLOY_EXIT_CODE -ne 0 ]; then
