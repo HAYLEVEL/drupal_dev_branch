@@ -28,38 +28,31 @@ disable_maintenance_mode() {( set -e
     yellow "Maintenance mode disabled."
 )}
 
-backup() {( set -e
+deploy_func() {( set -e  # Exit if any command within the function fails
+    git checkout $BITBUCKET_BRANCH
+    git pull origin $BITBUCKET_BRANCH
+
     yellow "Starting database backup--------------------------------------"
     docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush sql:dump --result-file=/tmp/backup.sql --gzip --skip-tables-list=cache*'
     docker cp $ENVIRONMENT_CONTAINER:/tmp/backup.sql.gz ~/back_sql/$DEPLOYMENT_ENVIRONMENT/backup_$BITBUCKET_COMMIT.sql.gz
-)}
-
-
-deploy_func() {( set -e  # Exit if any command within the function fails
-    git checkout origin/$BITBUCKET_BRANCH
-    git pull origin $BITBUCKET_BRANCH
 
     yellow "Deploy to docker stack----------------------------------------"
     docker start -i $NODE_CONTAINER
     docker exec $ENVIRONMENT_CONTAINER sh -c 'composer install --optimize-autoloader'
-    docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush deploy -y -v'
+    docker exec p$ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush deploy -y -v'
 )}
 
 rollback_func() {( set -e  # Exit if any command within the function fails
     yellow "Reverting Drupal site to commit hash \$CURRENT_COMMIT_HASH"
     git checkout \$CURRENT_COMMIT_HASH
     docker exec $ENVIRONMENT_CONTAINER sh -c 'composer install --optimize-autoloader'
-    docker start -i $NODE_CONTAINER
+    docker start $NODE_CONTAINER
+    sleep 20
     docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush deploy -y -v'
 )}
 
 ########################################################################
-backup
-BACKUP_EXIT_CODE=\$?
-if [ \$BACKUP_EXIT_CODE -ne 0 ]; then
-    red "Backup failed with exit code \$BACKUP_EXIT_CODE"
-    exit \$BACKUP_EXIT_CODE
-fi
+activate_maintenance_mode
 deploy_func
 DEPLOY_EXIT_CODE=\$?
 if [ \$DEPLOY_EXIT_CODE -ne 0 ]; then
@@ -70,7 +63,7 @@ if [ \$DEPLOY_EXIT_CODE -ne 0 ]; then
         red "Rollback failed with exit code \$ROLLBACK_EXIT_CODE" && disable_maintenance_mode
         exit \$ROLLBACK_EXIT_CODE
     else
-        yellow "Rollback succeeded but deployment failed with exit code \$DEPLOY_EXIT_CODE" && disable_maintenance_mode
+        yellow "Rollback succeeded but deployment failed with exit code \$DEPLOY_EXIT_CODE. Current commit hash-\$CURRENT_COMMIT_HASH" && disable_maintenance_mode
         exit \$DEPLOY_EXIT_CODE
     fi
 else
