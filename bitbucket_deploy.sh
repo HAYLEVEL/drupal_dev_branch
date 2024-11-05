@@ -42,7 +42,7 @@ deploy_func() {( set -e  # Exit if any command within the function fails
     yellow "Deploy to docker stack----------------------------------------"
     docker start -i $NODE_CONTAINER
     docker exec $ENVIRONMENT_CONTAINER sh -c 'composer install --optimize-autoloader'
-    docker exec p$ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush deploy -y -v'
+    docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush deploy -y -v'
 )}
 
 rollback_func() {( set -e  # Exit if any command within the function fails
@@ -71,7 +71,7 @@ if [ \$DEPLOY_EXIT_CODE -ne 0 ]; then
         red "Rollback failed with exit code \$ROLLBACK_EXIT_CODE" && disable_maintenance_mode
         exit \$ROLLBACK_EXIT_CODE
     else
-        yellow "Rollback succeeded but deployment failed with exit code \$DEPLOY_EXIT_CODE" && disable_maintenance_mode
+        yellow "Rollback succeeded but deployment failed with exit code \$DEPLOY_EXIT_CODE. Current commit hash-\$CURRENT_COMMIT_HASH" && disable_maintenance_mode
         exit \$DEPLOY_EXIT_CODE
     fi
 else
