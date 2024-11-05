@@ -28,13 +28,16 @@ disable_maintenance_mode() {( set -e
     yellow "Maintenance mode disabled."
 )}
 
-deploy_func() {( set -e  # Exit if any command within the function fails
-    git checkout origin/$BITBUCKET_BRANCH
-    git pull origin $BITBUCKET_BRANCH
-
+backup() {( set -e
     yellow "Starting database backup--------------------------------------"
     docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush sql:dump --result-file=/var/www/html/back_sql/backup.sql --gzip --skip-tables-list=cache*'
     docker cp $ENVIRONMENT_CONTAINER:/var/www/html/back_sql/backup.sql.gz ~/back_sql/$DEPLOYMENT_ENVIRONMENT/backup_$BITBUCKET_COMMIT.sql.gz
+)}
+
+
+deploy_func() {( set -e  # Exit if any command within the function fails
+    git checkout origin/$BITBUCKET_BRANCH
+    git pull origin $BITBUCKET_BRANCH
 
     yellow "Deploy to docker stack----------------------------------------"
     docker start -i $NODE_CONTAINER
@@ -52,7 +55,12 @@ rollback_func() {( set -e  # Exit if any command within the function fails
 )}
 
 ########################################################################
-activate_maintenance_mode
+backup
+BACKUP_EXIT_CODE=\$?
+if [ \$BACKUP_EXIT_CODE -ne 0 ]; then
+    red "Backup failed with exit code \$BACKUP_EXIT_CODE"
+    exit \$BACKUP_EXIT_CODE
+fi
 deploy_func
 DEPLOY_EXIT_CODE=\$?
 if [ \$DEPLOY_EXIT_CODE -ne 0 ]; then
