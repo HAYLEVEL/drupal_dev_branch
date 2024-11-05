@@ -49,8 +49,7 @@ rollback_func() {( set -e  # Exit if any command within the function fails
     yellow "Reverting Drupal site to commit hash \$CURRENT_COMMIT_HASH"
     git checkout \$CURRENT_COMMIT_HASH
     docker exec $ENVIRONMENT_CONTAINER sh -c 'composer install --optimize-autoloader'
-    docker start $NODE_CONTAINER
-    sleep 20
+    docker start -i $NODE_CONTAINER
     docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush deploy -y -v'
 )}
 
