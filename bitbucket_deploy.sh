@@ -31,7 +31,7 @@ disable_maintenance_mode() {( set -e
 backup() {( set -e
     yellow "Starting database backup--------------------------------------"
     docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush sql:dump --result-file=/tmp/backup.sql --gzip --skip-tables-list=cache*'
-    docker cp $ENVIRONMENT_CONTAINER:/tmp/backup.sql.gz ~/back_sql/$DEPLOYMENT_ENVIRONMENT/backup_$BITBUCKET_COMMIT.sql.gz
+    docker cp p$ENVIRONMENT_CONTAINER:/tmp/backup.sql.gz ~/back_sql/$DEPLOYMENT_ENVIRONMENT/backup_$BITBUCKET_COMMIT.sql.gz
 )}
 
 
