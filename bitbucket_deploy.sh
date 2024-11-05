@@ -28,21 +28,18 @@ disable_maintenance_mode() {( set -e
     yellow "Maintenance mode disabled."
 )}
 
-backup() {( set -e
-    yellow "Starting database backup--------------------------------------"
-    docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush sql:dump --result-file=/tmp/backup.sql --gzip --skip-tables-list=cache*'
-    docker cp $ENVIRONMENT_CONTAINER:/tmp/backup.sql.gz ~/back_sql/$DEPLOYMENT_ENVIRONMENT/backup_$BITBUCKET_COMMIT.sql.gz
-)}
-
-
 deploy_func() {( set -e  # Exit if any command within the function fails
     git checkout $BITBUCKET_BRANCH
     git pull origin $BITBUCKET_BRANCH
 
+    yellow "Starting database backup--------------------------------------"
+    docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush sql:dump --result-file=/tmp/backup.sql --gzip --skip-tables-list=cache*'
+    docker cp $ENVIRONMENT_CONTAINER:/tmp/backup.sql.gz ~/back_sql/$DEPLOYMENT_ENVIRONMENT/backup_$BITBUCKET_COMMIT.sql.gz
+
     yellow "Deploy to docker stack----------------------------------------"
     docker start -i $NODE_CONTAINER
     docker exec $ENVIRONMENT_CONTAINER sh -c 'composer install --optimize-autoloader'
-    docker exec p$ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush deploy -y -v'
+    docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush deploy -y -v'
 )}
 
 rollback_func() {( set -e  # Exit if any command within the function fails
@@ -55,12 +52,7 @@ rollback_func() {( set -e  # Exit if any command within the function fails
 )}
 
 ########################################################################
-backup
-BACKUP_EXIT_CODE=\$?
-if [ \$BACKUP_EXIT_CODE -ne 0 ]; then
-    red "Backup failed with exit code \$BACKUP_EXIT_CODE"
-    exit \$BACKUP_EXIT_CODE
-fi
+activate_maintenance_mode
 deploy_func
 DEPLOY_EXIT_CODE=\$?
 if [ \$DEPLOY_EXIT_CODE -ne 0 ]; then
