@@ -26,7 +26,6 @@ services:
     volumes:
       - files:/var/www/html/web/sites/default/files
       - private:/var/www/html/private
-      - liqx_site:/var/www/html
 
   nginx:
     build:
@@ -48,7 +47,6 @@ services:
     volumes:
       - files:/var/www/html/web/sites/default/files
       - private:/var/www/html/private
-      - liqx_site:/var/www/html:cached
     ports:
       - "8000:80"
 
@@ -56,4 +54,3 @@ volumes:
   files:
   private:
   mariadb-datavolume-dev:
-  liqx_site:
