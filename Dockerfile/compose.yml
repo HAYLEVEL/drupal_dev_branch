@@ -17,6 +17,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile_php
+      args:
+        BASE_IMAGE: ${BASE_IMAGE}
     image: liqx-php
     container_name: "php-dev"
     depends_on:
