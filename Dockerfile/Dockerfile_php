@@ -25,7 +25,6 @@ RUN apt-get install -y \
     php8.3-gd \
     php8.3-opcache \
     php8.3-intl \
-    php-memcache \
     php-memcached
 
 # Install Composer
@@ -43,11 +42,14 @@ RUN mkdir -p /run/php && chown www-data:www-data /run/php
 # Configure PHP-FPM to listen on a Unix socket
 COPY ./www.conf /etc/php/8.3/fpm/pool.d/www.conf
 
+# Copy site files
+COPY dev/ /var/www/html
+
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy site in image
-COPY ../ /var/www/html
+# Install all dependencies
+RUN composer install
 
 # Start PHP
-CMD ["php-fpm8.3", "-F"]
+CMD ["sh", "-c", "/var/www/html/vendor/bin/drush deploy -y && php-fpm8.3 -F"]

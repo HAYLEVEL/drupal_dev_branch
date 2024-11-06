@@ -8,18 +8,25 @@ services:
       MYSQL_DATABASE: $DB_NAME
       MYSQL_USER: $DB_USER
       MYSQL_PASSWORD: $DB_PASSWORD
-      MYSQL_TRANSACTION_ISOLATION: READ-COMMITTED
+      MYSQL_TRANSACTION_ISOLATION: $MYSQL_TRANSACTION_ISOLATION
     volumes:
       - /var/www/dev/back_sql/back_mariadb:/docker-entrypoint-initdb.d
       - mariadb-datavolume-dev:/var/lib/mysql
 
   php:
     build:
-      context: ./
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: Dockerfile_php
+    image: liqx-php
     container_name: "php-dev"
+    depends_on:
+      - "mariadb"
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    volumes:
+      - files:/var/www/html/web/sites/default/files
+      - private:/var/www/html/private
+      - liqx_site:/var/www/html
 
   nginx:
     build:
@@ -35,12 +42,18 @@ services:
       NGINX_ERROR_LOG_LEVEL: debug
       NGINX_BACKEND_HOST: php
       NGINX_SERVER_ROOT: /var/www/html/web
-      NGINX_VHOST_PRESET: drupal11
+      NGINX_VHOST_PRESET: $NGINX_VHOST_PRESET
     depends_on:
       - "php"
+    volumes:
+      - files:/var/www/html/web/sites/default/files
+      - private:/var/www/html/private
+      - liqx_site:/var/www/html:cached
     ports:
       - "8000:80"
 
-
 volumes:
+  files:
+  private:
   mariadb-datavolume-dev:
+  liqx_site:
