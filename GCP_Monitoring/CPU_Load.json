@@ -1,0 +1,48 @@
+{
+  "name": "projects/famous-momentum-439612-m8/alertPolicies/6217026201908459196",
+  "displayName": "CPU Load",
+  "documentation": {
+    "subject": "VM Instance - CPU load (1m) is to high!"
+  },
+  "userLabels": {},
+  "conditions": [
+    {
+      "name": "projects/famous-momentum-439612-m8/alertPolicies/6217026201908459196/conditions/6217026201908461349",
+      "displayName": "VM Instance - CPU load (1m)",
+      "conditionThreshold": {
+        "aggregations": [
+          {
+            "alignmentPeriod": "300s",
+            "perSeriesAligner": "ALIGN_MEAN"
+          }
+        ],
+        "comparison": "COMPARISON_GT",
+        "duration": "0s",
+        "filter": "resource.type = \"gce_instance\" AND metric.type = \"agent.googleapis.com/cpu/load_1m\"",
+        "thresholdValue": 0.7,
+        "trigger": {
+          "count": 1
+        }
+      }
+    }
+  ],
+  "alertStrategy": {
+    "autoClose": "1800s",
+    "notificationPrompts": [
+      "OPENED"
+    ]
+  },
+  "combiner": "OR",
+  "enabled": true,
+  "notificationChannels": [
+    "projects/famous-momentum-439612-m8/notificationChannels/15222497992563613023"
+  ],
+  "creationRecord": {
+    "mutateTime": "2024-11-06T09:57:18.636626598Z",
+    "mutatedBy": "serhiivlasyk8@gmail.com"
+  },
+  "mutationRecord": {
+    "mutateTime": "2024-11-06T09:57:18.636626598Z",
+    "mutatedBy": "serhiivlasyk8@gmail.com"
+  }
+}
