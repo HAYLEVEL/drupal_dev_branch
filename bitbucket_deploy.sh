@@ -18,7 +18,7 @@ red() { echo -e "\033[0;31m\$1\033[0m"; }
 green() { echo -e "\033[0;32m\$1\033[0m"; }
 yellow() { echo -e "\033[1;33m\$1\033[0m"; }
 
-activate_maintenance_mode() {( set -e
+activate_maintenance_mode() {( set -e # Exit if any command within the function fails
     docker exec $ENVIRONMENT_CONTAINER sh -c 'drush state:set system.maintenance_mode 1'
     yellow "Maintenance mode activated."
 )}
@@ -28,18 +28,24 @@ disable_maintenance_mode() {( set -e
     yellow "Maintenance mode disabled."
 )}
 
-deploy_func() {( set -e  # Exit if any command within the function fails
+backup() {( set -e
     yellow "Starting database backup--------------------------------------"
     docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush sql:dump --result-file=/tmp/backup.sql --gzip --skip-tables-list=cache*'
-    docker cp $ENVIRONMENT_CONTAINER:/tmp/backup.sql.gz ~/back_sql/$DEPLOYMENT_ENVIRONMENT/backup_$BITBUCKET_COMMIT.sql.gz
+    docker cp $ENVIRONMENT_CONTAINER:/tmp/backup.sql.gz ~/back_sql/$DEPLOYMENT_ENVIRONMENT/backup_$BITBUCKET_COMMIT.sql.g
 
+    # Find and delete the oldest files, keeping only the latest 5 files
+    ls -1t ~/back_sql/$DEPLOYMENT_ENVIRONMENT | tail -n +6 | xargs -I {} rm -f ~/back_sql/$DEPLOYMENT_ENVIRONMENT/{}
+)}
+
+deploy_func() {( set -e
+    backup
     git checkout $BITBUCKET_BRANCH
     git pull origin $BITBUCKET_BRANCH
 
     yellow "Deploy to docker stack----------------------------------------"
     docker start -i $NODE_CONTAINER
     docker exec $ENVIRONMENT_CONTAINER sh -c 'composer install --optimize-autoloader'
-    docker exec p$ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush deploy -y -v'
+    docker exec $ENVIRONMENT_CONTAINER sh -c 'vendor/bin/drush deploy -y -v'
 )}
 
 rollback_func() {( set -e  # Exit if any command within the function fails
