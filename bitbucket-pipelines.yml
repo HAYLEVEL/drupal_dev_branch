@@ -1,3 +1,13 @@
+definitions:
+  steps:
+    - step: &deploy
+        name: deploy
+        image: atlassian/default-image:3
+        runs-on:
+          - self.hosted
+        script:
+          - ./bitbucket_deploy.sh "$REMOTE_USER" "$REMOTE_HOST" "$ENVIRONMENT_CONTAINER" "$BITBUCKET_BRANCH" "$NODE_CONTAINER" "$BITBUCKET_COMMIT" "$SITE_DIR"
+
 pipelines:
   pull-requests:
     '**':
@@ -80,3 +90,13 @@ pipelines:
              image: aquasec/trivy:latest
              script:
                - trivy fs --exit-code 1 --format table ./
+  branches:
+    master:
+      - step:
+          <<: *deploy
+          deployment: Production
+
+    '*.dev':
+      - step:
+          <<: *deploy
+          deployment: Development
