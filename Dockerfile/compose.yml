@@ -1,0 +1,58 @@
+services:
+  mariadb:
+    image: wodby/mariadb:$MARIADB_TAG
+    container_name: "mariadb-dev"
+    stop_grace_period: 30s
+    environment:
+      MYSQL_ROOT_PASSWORD: $DB_ROOT_PASSWORD
+      MYSQL_DATABASE: $DB_NAME
+      MYSQL_USER: $DB_USER
+      MYSQL_PASSWORD: $DB_PASSWORD
+      MYSQL_TRANSACTION_ISOLATION: $MYSQL_TRANSACTION_ISOLATION
+    volumes:
+      - /var/www/dev/back_sql/back_mariadb:/docker-entrypoint-initdb.d
+      - mariadb-datavolume-dev:/var/lib/mysql
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile_php
+      args:
+        BASE_IMAGE: ${BASE_IMAGE}
+    image: liqx-php
+    container_name: "php-dev"
+    depends_on:
+      - "mariadb"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - files:/var/www/html/web/sites/default/files
+      - private:/var/www/html/private
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile_nginx
+    image: liqx-nginx
+    container_name: "nginx-dev"
+    environment:
+      NGINX_SET_REAL_IP_FROM: "0.0.0.0/0"
+      NGINX_REAL_IP_HEADER: "CF-Connecting-IP"
+      NGINX_REAL_IP_RECURSIVE: on
+      NGINX_STATIC_OPEN_FILE_CACHE: "off"
+      NGINX_ERROR_LOG_LEVEL: debug
+      NGINX_BACKEND_HOST: php
+      NGINX_SERVER_ROOT: /var/www/html/web
+      NGINX_VHOST_PRESET: $NGINX_VHOST_PRESET
+    depends_on:
+      - "php"
+    volumes:
+      - files:/var/www/html/web/sites/default/files
+      - private:/var/www/html/private
+    ports:
+      - "8000:80"
+
+volumes:
+  files:
+  private:
+  mariadb-datavolume-dev:
