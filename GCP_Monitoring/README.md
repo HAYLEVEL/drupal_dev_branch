@@ -20,30 +20,30 @@ An uptime check monitors the availability of an endpoint, like a server IP or we
 
 1. In the Google Cloud Console, go to Monitoring > Uptime checks.
 2. Click Create Uptime Check and configure:
-  - Name: (e.g., Server Uptime or Website Uptime).
-  - Protocol: Choose HTTP, HTTPS, or TCP.
-  - Resource Type: Select URL for a website or specify the server’s IP.
-  - Host: Enter the URL of the website or IP address of the server.
-  - Path: For websites, use / or a specific endpoint (e.g., /health).
-  - Regions: Choose the regions for GCP to perform the checks.
-  - Click Test to verify, then Save.
+3. Name: (e.g., Server Uptime or Website Uptime).
+4. Protocol: Choose HTTP, HTTPS, or TCP.
+5. Resource Type: Select URL for a website or specify the server’s IP.
+6. Host: Enter the URL of the website or IP address of the server.
+7. Path: For websites, use / or a specific endpoint (e.g., /health).
+8. Regions: Choose the regions for GCP to perform the checks.
+9. Click Test to verify, then Save.
 ## 3. Set Up Alerting Policies for the Server and Website
 Create alerting policies to receive notifications if the uptime checks fail or if server metrics exceed thresholds.
 
 ### Uptime Check Failure Alerts
 1. In Monitoring, go to Alerting > Create Policy.
 2. Under Conditions, click Add Condition.
-  - Condition Type: Choose Uptime Check.
-  - Target: Select the uptime check you created.
-  - Configuration: Set a failure threshold (e.g., failure for more than 2 minutes).
-3. Click Done to add the condition.
+3. Condition Type: Choose Uptime Check.
+4. Target: Select the uptime check you created.
+5. Configuration: Set a failure threshold (e.g., failure for more than 2 minutes).
+6. Click Done to add the condition.
 ### Server Metrics Alerts (CPU, Memory)
 1. In Alerting, click Create Policy > Add Condition.
 2. Configure conditions for specific metrics:
-  - Resource Type: Select GCE VM Instance.
-  - Metric: Choose a metric, like CPU utilization or memory usage.
-  - Threshold: Set a threshold (e.g., CPU usage > 80% for 5 minutes).
-3. Click Done to add the condition.
+3. Resource Type: Select GCE VM Instance.
+4. Metric: Choose a metric, like CPU utilization or memory usage.
+5. Threshold: Set a threshold (e.g., CPU usage > 80% for 5 minutes).
+6. Click Done to add the condition.
 ## 4. Configure Notification Channel
 1. Under Notifications, click Add Notification Channel and choose Email.
 2. Enter your email address (or others) to receive alerts.
