@@ -1,0 +1,17 @@
+uuid: 5632d301-51dc-4a3a-85fe-93313de7db05
+langcode: en
+status: true
+dependencies: {  }
+id: config_development
+label: config_development
+description: ''
+weight: 0
+stackable: false
+no_patching: false
+storage: folder
+folder: ../config/development
+module: {  }
+theme: {  }
+complete_list: {  }
+partial_list:
+  - system.performance
