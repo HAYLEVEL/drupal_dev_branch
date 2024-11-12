@@ -1,0 +1,51 @@
+{
+  "name": "projects/famous-momentum-439612-m8/alertPolicies/9493620849606254212",
+  "displayName": "Website Uptime uptime failure",
+  "documentation": {},
+  "userLabels": {},
+  "conditions": [
+    {
+      "name": "projects/famous-momentum-439612-m8/alertPolicies/9493620849606254212/conditions/9493620849606251295",
+      "displayName": "Failure of uptime check_id website-uptime-H9oo1p09Ouw",
+      "conditionThreshold": {
+        "aggregations": [
+          {
+            "alignmentPeriod": "1200s",
+            "crossSeriesReducer": "REDUCE_COUNT_FALSE",
+            "groupByFields": [
+              "resource.label.*"
+            ],
+            "perSeriesAligner": "ALIGN_NEXT_OLDER"
+          }
+        ],
+        "comparison": "COMPARISON_GT",
+        "duration": "60s",
+        "filter": "metric.type=\"monitoring.googleapis.com/uptime_check/check_passed\" AND metric.label.check_id=\"website-uptime-H9oo1p09Ouw\" AND resource.type=\"uptime_url\"",
+        "thresholdValue": 1,
+        "trigger": {
+          "count": 1
+        }
+      }
+    }
+  ],
+  "alertStrategy": {
+    "autoClose": "1800s",
+    "notificationPrompts": [
+      "OPENED",
+      "CLOSED"
+    ]
+  },
+  "combiner": "OR",
+  "enabled": true,
+  "notificationChannels": [
+    "projects/famous-momentum-439612-m8/notificationChannels/15222497992563613023"
+  ],
+  "creationRecord": {
+    "mutateTime": "2024-11-06T09:26:37.954838025Z",
+    "mutatedBy": "serhiivlasyk8@gmail.com"
+  },
+  "mutationRecord": {
+    "mutateTime": "2024-11-06T09:46:14.031672490Z",
+    "mutatedBy": "serhiivlasyk8@gmail.com"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "name": "projects/famous-momentum-439612-m8/alertPolicies/1774517103938462264",
+  "displayName": "Memory utilization",
+  "documentation": {
+    "subject": "VM Instance - Memory utilization is to high!"
+  },
+  "userLabels": {},
+  "conditions": [
+    {
+      "name": "projects/famous-momentum-439612-m8/alertPolicies/1774517103938462264/conditions/1774517103938464105",
+      "displayName": "VM Instance - Memory utilization",
+      "conditionThreshold": {
+        "aggregations": [
+          {
+            "alignmentPeriod": "300s",
+            "perSeriesAligner": "ALIGN_MEAN"
+          }
+        ],
+        "comparison": "COMPARISON_GT",
+        "duration": "0s",
+        "filter": "resource.type = \"gce_instance\" AND metric.type = \"agent.googleapis.com/memory/percent_used\"",
+        "thresholdValue": 85,
+        "trigger": {
+          "count": 1
+        }
+      }
+    }
+  ],
+  "alertStrategy": {
+    "autoClose": "1800s",
+    "notificationPrompts": [
+      "OPENED"
+    ]
+  },
+  "combiner": "OR",
+  "enabled": true,
+  "notificationChannels": [
+    "projects/famous-momentum-439612-m8/notificationChannels/15222497992563613023"
+  ],
+  "creationRecord": {
+    "mutateTime": "2024-11-06T10:05:43.589120683Z",
+    "mutatedBy": "serhiivlasyk8@gmail.com"
+  },
+  "mutationRecord": {
+    "mutateTime": "2024-11-06T10:05:43.589120683Z",
+    "mutatedBy": "serhiivlasyk8@gmail.com"
+  }
+}
