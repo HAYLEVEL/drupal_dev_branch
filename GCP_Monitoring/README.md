@@ -59,3 +59,9 @@ Create alerting policies to receive notifications if the uptime checks fail or i
 You can view real-time metrics and alerts in Cloud Monitoring > Dashboards or Alerting.
 
 ## 8. Also I added my configurations for better understanding of what's going bad.
+If you want to import configs you can easily do this:
+
+1. Copy the desired configuration.
+2. Go to service page.
+3. Open code editor.
+4. Change environments that are proper for your account and project.
