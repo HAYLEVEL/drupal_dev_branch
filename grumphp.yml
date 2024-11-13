@@ -4,21 +4,26 @@ grumphp:
       standard:
         - Drupal
         - DrupalPractice
-      triggered_by:
-        - php
-        - install
-        - module
-        - theme
-        - inc
-        - test
-        - profile
-        - css
-        - info
-        - txt
-        - md
-        - yml
+      triggered_by: [php, install, module, theme, inc, test, profile, info, yml]
       report: emacs
+
     eslint:
+      metadata:
+        enabled: true
       triggered_by: [js, jsx, ts, tsx, vue]
       config: ci_configuration/.eslintrc.json
+
+    composer:
+            file: ./composer.json
+            no_check_all: false
+            no_check_lock: false
+            no_check_publish: false
+            no_local_repository: false
+            with_dependencies: false
+            strict: false
+
+    securitychecker_symfony:
+            lockfile: ./composer.lock
+            format: ~
+            run_always: false
 
