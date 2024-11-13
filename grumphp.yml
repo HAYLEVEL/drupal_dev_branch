@@ -18,3 +18,7 @@ grumphp:
         - md
         - yml
       report: emacs
+    eslint:
+      triggered_by: [js, jsx, ts, tsx, vue]
+      config: ci_configuration/.eslintrc.json
+
