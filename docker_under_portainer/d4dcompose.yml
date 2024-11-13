@@ -100,20 +100,22 @@ services:
       - /var/www/html:/var/www/html
     command: sh -c 'npm install && npm run build'
 
-
   backup:
-    image: wodby/drupal-php:$PHP_TAG
+    image: backup_liqx
     container_name: "backup"
-    depends_on:
-#      - mariadb
-      - php
+    environment:
+      BOTO_PATH: /gcp_credentials/.boto
+      GC_BUCKET: dump_sql_bucket
+      MYSQL_HOST: '10.50.112.3'
+      STORAGE_TYPE: gcs
+      CRON_D_BACKUP: '4 4 * * * root /backup.sh | logger'
+      DAILY_CLEANUP: '1'
+      DBS: $DB_NAME
+      MAX_DAILY_BACKUP_FILES: '14'
+      MYSQL_ROOT_PASSWORD: $DB_ROOT_PASSWORD
+      PREFIX: liqx-
     volumes:
-      - /var/www/html:/var/www/html
-      - /home/backups/files:/home/backups/files
-    user: root
-    command: >
-      /bin/sh -c "echo '0 4 * * * /var/www/html/docker_under_portainer/backup.sh' > /etc/crontabs/wodby &&
-                  crond -f -d 0"
+      - /home/serhiivlasyk8/gcp_credentials:/gcp_credentials
 
   solr:
     image: wodby/solr:$SOLR_TAG
