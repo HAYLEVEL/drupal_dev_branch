@@ -1,17 +1,17 @@
 services:
-  mariadb:
-    image: wodby/mariadb:$MARIADB_TAG
-    container_name: "mariadb"
-    stop_grace_period: 30s
-    environment:
-      MYSQL_ROOT_PASSWORD: $DB_ROOT_PASSWORD
-      MYSQL_DATABASE: $DB_NAME
-      MYSQL_USER: $DB_USER
-      MYSQL_PASSWORD: $DB_PASSWORD
-      MYSQL_TRANSACTION_ISOLATION: READ-COMMITTED
-    volumes:
-      - /var/www/html/back_sql/back_mariadb:/docker-entrypoint-initdb.d
-      - mariadb-datavolume:/var/lib/mysql
+#  mariadb:
+#    image: wodby/mariadb:$MARIADB_TAG
+#    container_name: "mariadb"
+#    stop_grace_period: 30s
+#    environment:
+#      MYSQL_ROOT_PASSWORD: $DB_ROOT_PASSWORD
+#      MYSQL_DATABASE: $DB_NAME
+#      MYSQL_USER: $DB_USER
+#      MYSQL_PASSWORD: $DB_PASSWORD
+#      MYSQL_TRANSACTION_ISOLATION: READ-COMMITTED
+#    volumes:
+#      - /var/www/html/back_sql/back_mariadb:/docker-entrypoint-initdb.d
+#      - mariadb-datavolume:/var/lib/mysql
 
   php:
     image: wodby/drupal-php:$PHP_TAG
@@ -30,7 +30,6 @@ services:
     networks:
       - default
       - traefik-net
-
     depends_on:
       - php
     environment:
@@ -56,8 +55,8 @@ services:
     networks:
       - default
       - traefik-net
-    depends_on:
-      - mariadb
+#    depends_on:
+#      - mariadb
     environment:
       ADMINER_DEFAULT_SERVER: mariadb
     labels:
@@ -73,10 +72,10 @@ services:
     networks:
       - default
       - traefik-net
-    depends_on:
-      - mariadb
+ #   depends_on:
+ #     - mariadb
     environment:
-      PMA_HOST: mariadb
+      PMA_HOST: '10.50.112.3'
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.drupalliqx.pp.ua`)"
@@ -106,7 +105,7 @@ services:
     image: wodby/drupal-php:$PHP_TAG
     container_name: "backup"
     depends_on:
-      - mariadb
+#      - mariadb
       - php
     volumes:
       - /var/www/html:/var/www/html
