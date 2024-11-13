@@ -1,0 +1,20 @@
+grumphp:
+  tasks:
+    phpcs:
+      standard:
+        - Drupal
+        - DrupalPractice
+      triggered_by:
+        - php
+        - install
+        - module
+        - theme
+        - inc
+        - test
+        - profile
+        - css
+        - info
+        - txt
+        - md
+        - yml
+      report: emacs

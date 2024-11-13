@@ -28,7 +28,8 @@
         "drupal/memcache": "^2.7",
         "drupal/search_api_solr": "^4.3",
         "drupal/shield": "^1.8",
-        "drush/drush": "^13.0"
+        "drush/drush": "^13.0",
+        "phpro/grumphp": "^2.9"
     },
     "conflict": {
         "drupal/drupal": "*"
@@ -43,7 +44,8 @@
             "phpstan/extension-installer": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "php-http/discovery": true,
-            "cweagans/composer-patches": true
+            "cweagans/composer-patches": true,
+            "phpro/grumphp": true
         },
         "sort-packages": true
     },
