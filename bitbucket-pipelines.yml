@@ -24,6 +24,8 @@ pipelines:
                 - git fetch origin $BITBUCKET_BRANCH $BITBUCKET_PR_DESTINATION_BRANCH
                 - composer global config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
                 - composer global require drupal/coder:^8.3 --no-progress --prefer-dist
+                - export PATH="$PATH:$HOME/.composer/vendor/bin"
+                - composer global require phpro/grumphp --no-interaction
                 - wget -O - -q https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b ~/bin
                 - |
                   if [ -n "$BITBUCKET_PR_ID" ]; then
