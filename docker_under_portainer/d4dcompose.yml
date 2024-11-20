@@ -17,6 +17,7 @@ services:
     image: wodby/drupal-php:$PHP_TAG
     container_name: "php"
     environment:
+      DRUPAL_ENV: $DRUPAL_ENV
       PHP_EXTENSIONS_DISABLE: xhprof,spx
     extra_hosts:
       - "host.docker.internal:host-gateway"
