@@ -6,7 +6,7 @@ grumphp:
         - Drupal
         - DrupalPractice
       triggered_by: [php, install, module, theme, inc, test, profile, info, yml]
-      report: emacs
+      report: checkstyle
 
 #    eslint:
 #      bin: node_modules/.bin/eslint
