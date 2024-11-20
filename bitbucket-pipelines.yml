@@ -124,7 +124,7 @@ pipelines:
              image: wodby/drupal-php:8.3-dev-4.61.2
              caches:
                - composer
-              script:
+             script:
                - git config --global --add safe.directory $BITBUCKET_CLONE_DIR
                - git fetch origin $BITBUCKET_BRANCH $BITBUCKET_PR_DESTINATION_BRANCH
 
