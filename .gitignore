@@ -66,8 +66,6 @@
 
 # Ignore node files
 node_modules/
-package-lock.json
-package.json
 
 # Ignore gulp generated files
 /web/themes/custom/bootcamp_theme/css

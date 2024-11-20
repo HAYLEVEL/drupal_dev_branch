@@ -121,7 +121,8 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "./cleanup_tests.sh"
+	    "./post_install_scripts/cleanup_tests.sh",
+	    "./post_install_scripts/install_pre-commit.sh"
         ],
         "post-update-cmd": [
             "./cleanup_tests.sh"
