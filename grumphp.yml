@@ -25,11 +25,14 @@ grumphp:
       with_dependencies: false
       strict: false
 
-    securitychecker_symfony:
-      lockfile: ./composer.lock
-      format: ~
-      run_always: false
-
     shell:
       scripts:
         - ["-c", "trivy fs --exit-code 1 --format table ./"]
+
+    phpmd:
+      whitelist_patterns: []
+      exclude: []
+      report_format: text
+      ruleset: ['cleancode', 'codesize', 'naming', 'unusedcode']
+      triggered_by: ['php']
+
