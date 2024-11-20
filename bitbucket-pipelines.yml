@@ -23,7 +23,7 @@ pipelines:
                 - git config --global --add safe.directory $BITBUCKET_CLONE_DIR
                 - git fetch origin $BITBUCKET_BRANCH $BITBUCKET_PR_DESTINATION_BRANCH
 
-                - composer global config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer allow-plugins.phpro/grumphp true
+                - composer global config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer --no-plugins allow-plugins.phpro/grumphp true
                 - composer global require drupal/coder:^8.3 --no-progress --prefer-dist
                 - composer global require phpro/grumphp --no-interaction
                 - export PATH="$PATH:$HOME/.composer/vendor/bin"
