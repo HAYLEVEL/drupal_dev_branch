@@ -41,7 +41,14 @@ pipelines:
                   fi
                   echo "Files that were changed:" && cat changed_files.txt
 
-                - (cat changed_files.txt | grumphp run --tasks=phpcs 2> phpcs_report.txt) || true
+                # Run phpcs check on changed files
+                - |
+                  if [ -s "changed_files.txt" ]; then
+                    (cat changed_files.txt | grumphp run --tasks=phpcs 2> phpcs_report.txt) || true
+                  else
+                    echo "No Drupal related files "
+                    exit 0;
+                  fi
                 - cat phpcs_report.txt
 
                 - |
