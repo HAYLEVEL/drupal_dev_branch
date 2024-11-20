@@ -39,7 +39,7 @@ pipelines:
                     # For manual runs, check all PHP-related files under custom directories
                     find web/modules/custom/**/ web/themes/custom/**/ > changed_files.txt
                   fi
-                  echo "Files that will be checked: $CHANGED_FILES"
+                  echo "Files that will be checked:" && cat changed_files.txt
 
                 # Run phpcs check on changed files
                 - |
