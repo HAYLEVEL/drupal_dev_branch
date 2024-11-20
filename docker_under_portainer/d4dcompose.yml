@@ -1,22 +1,23 @@
 services:
-  mariadb:
-    image: wodby/mariadb:$MARIADB_TAG
-    container_name: "mariadb"
-    stop_grace_period: 30s
-    environment:
-      MYSQL_ROOT_PASSWORD: $DB_ROOT_PASSWORD
-      MYSQL_DATABASE: $DB_NAME
-      MYSQL_USER: $DB_USER
-      MYSQL_PASSWORD: $DB_PASSWORD
-      MYSQL_TRANSACTION_ISOLATION: READ-COMMITTED
-    volumes:
-      - /var/www/html/back_sql/back_mariadb:/docker-entrypoint-initdb.d
-      - mariadb-datavolume:/var/lib/mysql
+#  mariadb:
+#    image: wodby/mariadb:$MARIADB_TAG
+#    container_name: "mariadb"
+#    stop_grace_period: 30s
+#    environment:
+#      MYSQL_ROOT_PASSWORD: $DB_ROOT_PASSWORD
+#      MYSQL_DATABASE: $DB_NAME
+#      MYSQL_USER: $DB_USER
+#      MYSQL_PASSWORD: $DB_PASSWORD
+#      MYSQL_TRANSACTION_ISOLATION: READ-COMMITTED
+#    volumes:
+#      - /var/www/html/back_sql/back_mariadb:/docker-entrypoint-initdb.d
+#      - mariadb-datavolume:/var/lib/mysql
 
   php:
     image: wodby/drupal-php:$PHP_TAG
     container_name: "php"
     environment:
+      DRUPAL_ENV: $DRUPAL_ENV
       PHP_EXTENSIONS_DISABLE: xhprof,spx
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -30,7 +31,6 @@ services:
     networks:
       - default
       - traefik-net
-
     depends_on:
       - php
     environment:
@@ -56,8 +56,8 @@ services:
     networks:
       - default
       - traefik-net
-    depends_on:
-      - mariadb
+#    depends_on:
+#      - mariadb
     environment:
       ADMINER_DEFAULT_SERVER: mariadb
     labels:
@@ -73,10 +73,10 @@ services:
     networks:
       - default
       - traefik-net
-    depends_on:
-      - mariadb
+ #   depends_on:
+ #     - mariadb
     environment:
-      PMA_HOST: mariadb
+      PMA_HOST: '10.50.112.3'
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.drupalliqx.pp.ua`)"
@@ -101,20 +101,22 @@ services:
       - /var/www/html:/var/www/html
     command: sh -c 'npm install && npm run build'
 
-
   backup:
-    image: wodby/drupal-php:$PHP_TAG
+    image: backup_liqx
     container_name: "backup"
-    depends_on:
-      - mariadb
-      - php
+    environment:
+      BOTO_PATH: /gcp_credentials/.boto
+      GC_BUCKET: dump_sql_bucket
+      MYSQL_HOST: '10.50.112.3'
+      STORAGE_TYPE: gcs
+      CRON_D_BACKUP: '4 4 * * * root /backup.sh | logger'
+      DAILY_CLEANUP: '1'
+      DBS: $DB_NAME
+      MAX_DAILY_BACKUP_FILES: '14'
+      MYSQL_ROOT_PASSWORD: $DB_ROOT_PASSWORD
+      PREFIX: liqx-
     volumes:
-      - /var/www/html:/var/www/html
-      - /home/backups/files:/home/backups/files
-    user: root
-    command: >
-      /bin/sh -c "echo '0 4 * * * /var/www/html/docker_under_portainer/backup.sh' > /etc/crontabs/wodby &&
-                  crond -f -d 0"
+      - /home/serhiivlasyk8/gcp_credentials:/gcp_credentials
 
   solr:
     image: wodby/solr:$SOLR_TAG

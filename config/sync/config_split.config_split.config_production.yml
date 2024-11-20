@@ -1,0 +1,17 @@
+uuid: 8956cd01-d85a-4efa-a8d9-00124e4f27d6
+langcode: en
+status: true
+dependencies: {  }
+id: config_production
+label: Config_production
+description: ''
+weight: 0
+stackable: false
+no_patching: false
+storage: folder
+folder: ../config/production
+module: {  }
+theme: {  }
+complete_list: {  }
+partial_list:
+  - system.performance
