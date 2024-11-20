@@ -149,8 +149,7 @@ pipelines:
                    echo "PHPCS has not found any problems."
                    exit 0;
                  fi
-               - cat phpmd_report.txt
-               - exit 1;
+               - cat phpmd_report.txt || exit 1;
 
   branches:
     master:
