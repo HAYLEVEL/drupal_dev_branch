@@ -41,14 +41,7 @@ pipelines:
                   fi
                   echo "Files that were changed:" && cat changed_files.txt
 
-                # Run phpcs check on changed files
-                - |
-                  if [ -s "changed_files.txt" ]; then
-                    (cat changed_files.txt | grumphp run --tasks=phpcs 2> phpcs_report.txt) || true
-                  else
-                    echo "No Drupal related files "
-                    exit 0;
-                  fi
+                - (cat changed_files.txt | grumphp run --tasks=phpcs 2> phpcs_report.txt) || true
                 - cat phpcs_report.txt
 
                 - |
@@ -89,14 +82,7 @@ pipelines:
                   fi
                   echo "Files that were changed:" && cat changed_files.txt
 
-                # Run ESLint check on changed files
-#                - |
-#                  if [ -s "changed_files.txt" ]; then
                 - (cat changed_files.txt | grumphp run --tasks=eslint 2> eslint_report.txt) || true
- #                 else
-  #                  echo "No Drupal related files "
-   #                 exit 0;
-    #              fi
                 - cat eslint_report.txt
 
                 - |
