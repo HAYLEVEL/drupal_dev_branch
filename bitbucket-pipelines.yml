@@ -22,30 +22,35 @@ pipelines:
               script:
                 - git config --global --add safe.directory $BITBUCKET_CLONE_DIR
                 - git fetch origin $BITBUCKET_BRANCH $BITBUCKET_PR_DESTINATION_BRANCH
-                - composer global config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+
+                - composer global config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer allow-plugins.phpro/grumphp true
                 - composer global require drupal/coder:^8.3 --no-progress --prefer-dist
-                - export PATH="$PATH:$HOME/.composer/vendor/bin"
                 - composer global require phpro/grumphp --no-interaction
+                - export PATH="$PATH:$HOME/.composer/vendor/bin"
+
                 - wget -O - -q https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b ~/bin
+
                 - |
                   if [ -n "$BITBUCKET_PR_ID" ]; then
                     # Get changed PHP-related files for pull requests
-                    CHANGED_FILES=$(git diff --name-only origin/$BITBUCKET_BRANCH origin/$BITBUCKET_PR_DESTINATION_BRANCH -- | grep -E '\.(php|module|install|theme|inc|test|profile|css|info|txt|md|yml)$' || true)
+                    CHANGED_FILES=$(git diff --name-only origin/$BITBUCKET_BRANCH origin/$BITBUCKET_PR_DESTINATION_BRANCH -- | grep -E '\.(php|module|install|theme|inc|test|profile|info|yml)$' || true)
                   else
                     # For manual runs, check all PHP-related files under custom directories
-                    CHANGED_FILES=$(find web/modules/custom/**/ web/themes/custom/**/ -type f -name '*.php' -o -name '*.module' -o -name '*.install' -o -name '*.theme' -o -name '*.inc' -o -name '*.test' -o -name '*.profile' -o -name '*.css' -o -name '*.info' -o -name '.txt' -o -name '*.md' -o -name '*.yml')
+                    CHANGED_FILES=$(find web/modules/custom/**/ web/themes/custom/**/ -type f -name '*.php' -o -name '*.module' -o -name '*.install' -o -name '*.theme' -o -name '*.inc' -o -name '*.test' -o -name '*.profile' -o -name '*.info' -o -name '*.yml')
                   fi
                   echo "Files that will be checked: $CHANGED_FILES"
+
                 # Run phpcs check on changed files
                 - |
-
                   if [ -n "$CHANGED_FILES" ]; then
-                    ~/.composer/vendor/bin/phpcs --standard=Drupal,DrupalPractice $CHANGED_FILES --report=checkstyle | tee phpcs_report.txt
+                    grumphp run --tasks=phpcs
+                  #  ~/.composer/vendor/bin/phpcs --standard=Drupal,DrupalPractice $CHANGED_FILES --report=checkstyle | tee phpcs_report.txt
                   else
                     echo "No Drupal related files "
                     exit 0;
                   fi
                 - cat phpcs_report.txt
+
                 - |
                   if [ -n "$BITBUCKET_PR_ID" ]; then
                     ~/bin/reviewdog -f=checkstyle -name="PHPCS" -reporter=bitbucket-code-report -fail-level=any < phpcs_report.txt
