@@ -8,12 +8,13 @@ grumphp:
       triggered_by: [php, install, module, theme, inc, test, profile, info, yml]
       report: checkstyle
 
-#    eslint:
-#      bin: node_modules/.bin/eslint
-#      metadata:
-#        enabled: true
-#      triggered_by: [js, jsx, ts, tsx, vue]
-#      config: ci_configuration/.eslintrc.json
+    eslint:
+      bin: node_modules/.bin/eslint
+      metadata:
+        enabled: true
+      triggered_by: [js, jsx, ts, tsx, vue]
+      config: ci_configuration/.eslintrc.json
+      format: ~
 
     composer:
       file: ./composer.json

@@ -69,19 +69,36 @@ pipelines:
               script:
                 - git config --global --add safe.directory $BITBUCKET_CLONE_DIR
                 - git fetch origin $BITBUCKET_BRANCH $BITBUCKET_PR_DESTINATION_BRANCH
+
+                - composer global config --no-plugins allow-plugins.phpro/grumphp true
+                - composer global require phpro/grumphp --no-interaction
+                - export PATH="$PATH:$HOME/.composer/vendor/bin"
+
                 - sudo apk add npm
                 - sudo npm install
+
                 - wget -O - -q https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b ~/bin
+
                 - |
                   if [ -n "$BITBUCKET_PR_ID" ]; then
                     # Get changed JS files for pull requests
-                    CHANGED_FILES=$(git diff --name-only origin/$BITBUCKET_BRANCH origin/$BITBUCKET_PR_DESTINATION_BRANCH | grep -E '\.(js)$' || true)
+                    git diff --name-only origin/$BITBUCKET_BRANCH origin/$BITBUCKET_PR_DESTINATION_BRANCH > changed_files.txt
                   else
                     # For manual runs, check all JS files under custom directories
-                    CHANGED_FILES=$(find web/modules/custom/**/ web/themes/custom/**/ -type f -name '*.js')
+                    find web/modules/custom/**/ web/themes/custom/**/ > changed_files.txt
                   fi
-                  echo "Files that will be checked: $CHANGED_FILES"
-                - npx eslint -c ci_configuration/.eslintrc.json --no-error-on-unmatched-pattern $CHANGED_FILES | tee eslint_report.txt
+                  echo "Files that were changed:" && cat changed_files.txt
+
+                # Run ESLint check on changed files
+                - |
+                  if [ -s "changed_files.txt" ]; then
+                    (cat changed_files.txt | grumphp run --tasks=eslint 2> eslint_report.txt) || true
+                  else
+                    echo "No Drupal related files "
+                    exit 0;
+                  fi
+                - cat eslint_report.txt
+
                 - |
                   if [ -n "$BITBUCKET_PR_ID" ]; then
                     ~/bin/reviewdog -f=eslint -name="ESLint" -reporter=bitbucket-code-report -fail-level=any < eslint_report.txt
