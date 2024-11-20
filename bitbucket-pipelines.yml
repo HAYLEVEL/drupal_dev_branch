@@ -44,7 +44,7 @@ pipelines:
                 - (cat changed_files.txt | grumphp run --tasks=phpcs 2> phpcs_report.txt) || true
                 - |
                   if [ ! -s "phpcs_report.txt" ]; then
-                    "PHPCS has not found any problems."
+                    echo "PHPCS has not found any problems."
                     exit 0;
                   fi
                 - cat phpcs_report.txt
