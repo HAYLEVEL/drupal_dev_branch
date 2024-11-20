@@ -34,22 +34,17 @@ pipelines:
                 - |
                   if [ -n "$BITBUCKET_PR_ID" ]; then
                     # Get changed PHP-related files for pull requests
-                    CHANGED_FILES=$(git diff --name-only origin/$BITBUCKET_BRANCH origin/$BITBUCKET_PR_DESTINATION_BRANCH -- | grep -E '\.(php|module|install|theme|inc|test|profile|info|yml)$' || true)
+                    git diff --name-only origin/$BITBUCKET_BRANCH origin/$BITBUCKET_PR_DESTINATION_BRANCH > changed_files.txt
                   else
                     # For manual runs, check all PHP-related files under custom directories
-                    CHANGED_FILES=$(find web/modules/custom/**/ web/themes/custom/**/ -type f -name '*.php' -o -name '*.module' -o -name '*.install' -o -name '*.theme' -o -name '*.inc' -o -name '*.test' -o -name '*.profile' -o -name '*.info' -o -name '*.yml')
+                    find web/modules/custom/**/ web/themes/custom/**/ > changed_files.txt
                   fi
                   echo "Files that will be checked: $CHANGED_FILES"
 
                 # Run phpcs check on changed files
                 - |
-                  if [ -n "$CHANGED_FILES" ]; then
-                    echo "$CHANGED_FILES" | while read -r file; do
-                      if [[ $file == *.php ]]; then
-                        grumphp run --tasks=phpcs --file=$file
-                      fi
-                    done
-                  #  ~/.composer/vendor/bin/phpcs --standard=Drupal,DrupalPractice $CHANGED_FILES --report=checkstyle | tee phpcs_report.txt
+                  if [ -s "changed_files.txt" ]; then
+                    cat changed_files.txt | grumphp run --tasks=phpcs | tee phpcs_report.txt
                   else
                     echo "No Drupal related files "
                     exit 0;
