@@ -134,23 +134,23 @@ pipelines:
                - export PATH="$PATH:$HOME/.composer/vendor/bin"
 
                - |
-                  if [ -n "$BITBUCKET_PR_ID" ]; then
-                    # Get changed PHP-related files for pull requests
-                    git diff --name-only origin/$BITBUCKET_BRANCH origin/$BITBUCKET_PR_DESTINATION_BRANCH > changed_files.txt
-                  else
-                    # For manual runs, check all PHP-related files under custom directories
-                    find web/modules/custom/**/ web/themes/custom/**/ > changed_files.txt
-                  fi
-                  echo "Files that were changed:" && cat changed_files.txt
+                 if [ -n "$BITBUCKET_PR_ID" ]; then
+                   # Get changed PHP-related files for pull requests
+                   git diff --name-only origin/$BITBUCKET_BRANCH origin/$BITBUCKET_PR_DESTINATION_BRANCH > changed_files.txt
+                 else
+                   # For manual runs, check all PHP-related files under custom directories
+                   find web/modules/custom/**/ web/themes/custom/**/ > changed_files.txt
+                 fi
+                 echo "Files that were changed:" && cat changed_files.txt
 
-                - (cat changed_files.txt | grumphp run --tasks=phpmd 2> phpmd_report.txt) || true
-                - |
-                  if [ ! -s "phpmd_report.txt" ]; then
-                    echo "PHPCS has not found any problems."
-                    exit 0;
-                  fi
-                - cat phpcs_report.txt
-                - exit 1;
+               - (cat changed_files.txt | grumphp run --tasks=phpmd 2> phpmd_report.txt) || true
+               - |
+                 if [ ! -s "phpmd_report.txt" ]; then
+                   echo "PHPCS has not found any problems."
+                   exit 0;
+                 fi
+               - cat phpcs_report.txt
+               - exit 1;
 
   branches:
     master:
