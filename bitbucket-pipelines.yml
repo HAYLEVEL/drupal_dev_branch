@@ -44,7 +44,11 @@ pipelines:
                 # Run phpcs check on changed files
                 - |
                   if [ -n "$CHANGED_FILES" ]; then
-                    grumphp run --tasks=phpcs
+                    echo "$CHANGED_FILES" | while read -r file; do
+                      if [[ $file == *.php ]]; then
+                        grumphp run --tasks=phpcs --file=$file
+                      fi
+                    done
                   #  ~/.composer/vendor/bin/phpcs --standard=Drupal,DrupalPractice $CHANGED_FILES --report=checkstyle | tee phpcs_report.txt
                   else
                     echo "No Drupal related files "
