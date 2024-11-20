@@ -101,39 +101,39 @@ pipelines:
           - step:
              name: "Trivy"
              runs-on:
-                - self.hosted
+               - self.hosted
              image: wodby/drupal-php:8.3-dev-4.61.2
              caches:
-                - composer
-              script:
-                - git config --global --add safe.directory $BITBUCKET_CLONE_DIR
-                - git fetch origin $BITBUCKET_BRANCH $BITBUCKET_PR_DESTINATION_BRANCH
+               - composer
+             script:
+               - git config --global --add safe.directory $BITBUCKET_CLONE_DIR
+               - git fetch origin $BITBUCKET_BRANCH $BITBUCKET_PR_DESTINATION_BRANCH
 
-                - composer global config --no-plugins allow-plugins.phpro/grumphp true
-                - composer global require phpro/grumphp --no-interaction
-                - export PATH="$PATH:$HOME/.composer/vendor/bin"
+               - composer global config --no-plugins allow-plugins.phpro/grumphp true
+               - composer global require phpro/grumphp --no-interaction
+               - export PATH="$PATH:$HOME/.composer/vendor/bin"
 
-                - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin v0.57.1
+               - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin v0.57.1
 
-                - grumphp run --tasks=shell
+               - grumphp run --tasks=shell
 
           - step:
              name: "PHPMD"
              runs-on:
-                - self.hosted
+               - self.hosted
              image: wodby/drupal-php:8.3-dev-4.61.2
              caches:
-                - composer
+               - composer
               script:
-                - git config --global --add safe.directory $BITBUCKET_CLONE_DIR
-                - git fetch origin $BITBUCKET_BRANCH $BITBUCKET_PR_DESTINATION_BRANCH
+               - git config --global --add safe.directory $BITBUCKET_CLONE_DIR
+               - git fetch origin $BITBUCKET_BRANCH $BITBUCKET_PR_DESTINATION_BRANCH
 
-                - composer global config --no-plugins allow-plugins.phpro/grumphp true
-                - composer global config --no-plugins allow-plugins.phpmd/phpmd true
-                - composer global require phpro/grumphp phpmd/phpmd --no-interaction
-                - export PATH="$PATH:$HOME/.composer/vendor/bin"
+               - composer global config --no-plugins allow-plugins.phpro/grumphp true
+               - composer global config --no-plugins allow-plugins.phpmd/phpmd true
+               - composer global require phpro/grumphp phpmd/phpmd --no-interaction
+               - export PATH="$PATH:$HOME/.composer/vendor/bin"
 
-                - grumphp run --tasks=phpmd
+               - grumphp run --tasks=phpmd
 
   branches:
     master:
