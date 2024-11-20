@@ -91,12 +91,12 @@ pipelines:
 
                 # Run ESLint check on changed files
                 - |
-                  if [ -s "changed_files.txt" ]; then
+#                  if [ -s "changed_files.txt" ]; then
                     (cat changed_files.txt | grumphp run --tasks=eslint 2> eslint_report.txt) || true
-                  else
-                    echo "No Drupal related files "
-                    exit 0;
-                  fi
+ #                 else
+  #                  echo "No Drupal related files "
+   #                 exit 0;
+    #              fi
                 - cat eslint_report.txt
 
                 - |
