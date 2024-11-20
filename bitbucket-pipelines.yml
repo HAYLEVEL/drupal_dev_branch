@@ -39,12 +39,12 @@ pipelines:
                     # For manual runs, check all PHP-related files under custom directories
                     find web/modules/custom/**/ web/themes/custom/**/ > changed_files.txt
                   fi
-                  echo "Files that will be checked:" && cat changed_files.txt
+                  echo "Files that were changed:" && cat changed_files.txt
 
                 # Run phpcs check on changed files
                 - |
                   if [ -s "changed_files.txt" ]; then
-                    cat changed_files.txt | grumphp run --tasks=phpcs | tee phpcs_report.txt
+                    cat changed_files.txt | grumphp run --tasks=phpcs 2> tee phpcs_report.txt
                   else
                     echo "No Drupal related files "
                     exit 0;
