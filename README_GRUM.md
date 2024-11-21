@@ -64,14 +64,32 @@ Triggered By:
 
 ## Usage Instructions
 
-### 1. Install Dependencies
+### 1. Installation
 
 Run composer install. Check the post-install-cmd section in composer.json for better understanding of process.:
-```
-composer install
-```
+```composer install```
 
 Run npm install for installing eslint and required dependencies
-```
-npm install
-```
+```npm install```
+
+### 2. Configuration
+
+GrumPHP requires a grumphp.yml or grumphp.yml.dist file in the root directory of your project. You can change this file according to your requirements.
+
+### 3. Usage
+
+Run All Tasks:
+ - To manually run all configured tasks:
+``` vendor/bin/grumphp run```
+
+Run Specific Tasks:
+ - Run specific tasks by using the --tasks option:
+```vendor/bin/grumphp run --tasks=phpcs```
+
+Git Hook Integration:
+ - GrumPHP is designed to work as a pre-commit hook. When installed, it will automatically validate your code before a commit. To install the hooks, run:
+```vendor/bin/grumphp git:init```
+
+**Also, the composer post-install script executes this command.**
+
+For more information about GrumPHP read the [documentation](https://github.com/phpro/grumphp).
