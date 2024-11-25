@@ -99,7 +99,7 @@ pipelines:
                   fi
 
           - step:
-             name: "Trivy"
+             name: "Trivy && Composer"
              runs-on:
                - self.hosted
              image: wodby/drupal-php:8.3-dev-4.61.2
@@ -115,7 +115,7 @@ pipelines:
 
                - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin v0.57.1
 
-               - grumphp run --tasks=shell
+               - grumphp run --tasks=shell,composer
 
           - step:
              name: "PHPMD"
