@@ -1,0 +1,32 @@
+grumphp:
+  tasks:
+    phpcs:
+      standard:
+        - Drupal
+        - DrupalPractice
+      triggered_by: [php, install, module, theme, inc, test, profile, info, yml]
+      report: checkstyle
+    eslint:
+      bin: node_modules/.bin/eslint
+      metadata:
+        enabled: true
+      triggered_by: [js, jsx, ts, tsx, vue]
+      config: ci_configuration/.eslintrc.json
+      format: ~
+    composer:
+      file: ./composer.json
+      no_check_all: false
+      no_check_lock: false
+      no_check_publish: false
+      no_local_repository: false
+      with_dependencies: false
+      strict: false
+    shell:
+      scripts:
+        - ["-c", "trivy fs --exit-code 1 --format table ./"]
+    phpmd:
+      whitelist_patterns: []
+      exclude: []
+      report_format: text
+      ruleset: ['cleancode', 'codesize', 'naming', 'unusedcode']
+      triggered_by: ['php']

@@ -22,28 +22,33 @@ pipelines:
               script:
                 - git config --global --add safe.directory $BITBUCKET_CLONE_DIR
                 - git fetch origin $BITBUCKET_BRANCH $BITBUCKET_PR_DESTINATION_BRANCH
+                # Installing all necessary dependencies for linting
                 - composer global config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+                - composer global config --no-plugins allow-plugins.phpro/grumphp true
                 - composer global require drupal/coder:^8.3 --no-progress --prefer-dist
+                - composer global require phpro/grumphp --no-interaction
+                - export PATH="$PATH:$HOME/.composer/vendor/bin"
+                # Installing reviewdog
                 - wget -O - -q https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b ~/bin
+                # Catching changed files
                 - |
                   if [ -n "$BITBUCKET_PR_ID" ]; then
                     # Get changed PHP-related files for pull requests
-                    CHANGED_FILES=$(git diff --name-only origin/$BITBUCKET_BRANCH origin/$BITBUCKET_PR_DESTINATION_BRANCH -- | grep -E '\.(php|module|install|theme|inc|test|profile|css|info|txt|md|yml)$' || true)
+                    git diff --name-only origin/$BITBUCKET_BRANCH origin/$BITBUCKET_PR_DESTINATION_BRANCH > changed_files.txt
                   else
                     # For manual runs, check all PHP-related files under custom directories
-                    CHANGED_FILES=$(find web/modules/custom/**/ web/themes/custom/**/ -type f -name '*.php' -o -name '*.module' -o -name '*.install' -o -name '*.theme' -o -name '*.inc' -o -name '*.test' -o -name '*.profile' -o -name '*.css' -o -name '*.info' -o -name '.txt' -o -name '*.md' -o -name '*.yml')
+                    find web/modules/custom/**/ web/themes/custom/**/ > changed_files.txt
                   fi
-                  echo "Files that will be checked: $CHANGED_FILES"
-                # Run phpcs check on changed files
+                  echo "Files that were changed:" && cat changed_files.txt
+                # Linting
+                - (cat changed_files.txt | grumphp run --tasks=phpcs 2> phpcs_report.txt) || true
                 - |
-
-                  if [ -n "$CHANGED_FILES" ]; then
-                    ~/.composer/vendor/bin/phpcs --standard=Drupal,DrupalPractice $CHANGED_FILES --report=checkstyle | tee phpcs_report.txt
-                  else
-                    echo "No Drupal related files "
+                  if [ ! -s "phpcs_report.txt" ]; then
+                    echo "PHPCS has not found any problems."
                     exit 0;
                   fi
                 - cat phpcs_report.txt
+                # Running reviewdog
                 - |
                   if [ -n "$BITBUCKET_PR_ID" ]; then
                     ~/bin/reviewdog -f=checkstyle -name="PHPCS" -reporter=bitbucket-code-report -fail-level=any < phpcs_report.txt
@@ -62,19 +67,28 @@ pipelines:
               script:
                 - git config --global --add safe.directory $BITBUCKET_CLONE_DIR
                 - git fetch origin $BITBUCKET_BRANCH $BITBUCKET_PR_DESTINATION_BRANCH
+                # Installing all necessary dependencies for linting
+                - composer global config --no-plugins allow-plugins.phpro/grumphp true
+                - composer global require phpro/grumphp --no-interaction
+                - export PATH="$PATH:$HOME/.composer/vendor/bin"
                 - sudo apk add npm
                 - sudo npm install
+                # Installing reviewdog
                 - wget -O - -q https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b ~/bin
+                # Catching changed files
                 - |
                   if [ -n "$BITBUCKET_PR_ID" ]; then
                     # Get changed JS files for pull requests
-                    CHANGED_FILES=$(git diff --name-only origin/$BITBUCKET_BRANCH origin/$BITBUCKET_PR_DESTINATION_BRANCH | grep -E '\.(js)$' || true)
+                    git diff --name-only origin/$BITBUCKET_BRANCH origin/$BITBUCKET_PR_DESTINATION_BRANCH > changed_files.txt
                   else
                     # For manual runs, check all JS files under custom directories
-                    CHANGED_FILES=$(find web/modules/custom/**/ web/themes/custom/**/ -type f -name '*.js')
+                    find web/modules/custom/**/ web/themes/custom/**/ > changed_files.txt
                   fi
-                  echo "Files that will be checked: $CHANGED_FILES"
-                - npx eslint -c ci_configuration/.eslintrc.json --no-error-on-unmatched-pattern $CHANGED_FILES | tee eslint_report.txt
+                  echo "Files that were changed:" && cat changed_files.txt
+                # Linting
+                - (cat changed_files.txt | grumphp run --tasks=eslint 2> eslint_report.txt) || true
+                - cat eslint_report.txt
+                # Running reviewdog
                 - |
                   if [ -n "$BITBUCKET_PR_ID" ]; then
                     ~/bin/reviewdog -f=eslint -name="ESLint" -reporter=bitbucket-code-report -fail-level=any < eslint_report.txt
@@ -84,12 +98,57 @@ pipelines:
                   fi
 
           - step:
-             name: "Trivy"
+             name: "Trivy && Composer"
              runs-on:
-                - self.hosted
-             image: aquasec/trivy:latest
+               - self.hosted
+             image: wodby/drupal-php:8.3-dev-4.61.2
+             caches:
+               - composer
              script:
-               - trivy fs --exit-code 1 --format table ./
+               - git config --global --add safe.directory $BITBUCKET_CLONE_DIR
+               - git fetch origin $BITBUCKET_BRANCH $BITBUCKET_PR_DESTINATION_BRANCH
+               # Installing all necessary dependencies for linting
+               - composer global config --no-plugins allow-plugins.phpro/grumphp true
+               - composer global require phpro/grumphp --no-interaction
+               - export PATH="$PATH:$HOME/.composer/vendor/bin"
+               - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin v0.57.1
+               # Linting
+               - grumphp run --tasks=shell,composer
+
+          - step:
+             name: "PHPMD"
+             runs-on:
+               - self.hosted
+             image: wodby/drupal-php:8.3-dev-4.61.2
+             caches:
+               - composer
+             script:
+               - git config --global --add safe.directory $BITBUCKET_CLONE_DIR
+               - git fetch origin $BITBUCKET_BRANCH $BITBUCKET_PR_DESTINATION_BRANCH
+               # Installing all necessary dependencies for linting
+               - composer global config --no-plugins allow-plugins.phpro/grumphp true
+               - composer global config --no-plugins allow-plugins.phpmd/phpmd true
+               - composer global require phpro/grumphp phpmd/phpmd --no-interaction
+               - export PATH="$PATH:$HOME/.composer/vendor/bin"
+               # Catching changed files
+               - |
+                 if [ -n "$BITBUCKET_PR_ID" ]; then
+                   # Get changed PHP-related files for pull requests
+                   git diff --name-only origin/$BITBUCKET_BRANCH origin/$BITBUCKET_PR_DESTINATION_BRANCH > changed_files.txt
+                 else
+                   # For manual runs, check all PHP-related files under custom directories
+                   find web/modules/custom/**/ web/themes/custom/**/ > changed_files.txt
+                 fi
+                 echo "Files that were changed:" && cat changed_files.txt
+               # Linting
+               - (cat changed_files.txt | grumphp run --tasks=phpmd 2> phpmd_report.txt) || true
+               - |
+                 if [ ! -s "phpmd_report.txt" ]; then
+                   echo "PHPMD has not found any problems."
+                   exit 0;
+                 fi
+               - cat phpmd_report.txt && exit 1;
+
   branches:
     master:
       - step:
