@@ -44,8 +44,7 @@
             "drupal/core-composer-scaffold": true,
             "drupal/core-project-message": true,
             "php-http/discovery": true,
-            "phpro/grumphp": true,
-            "phpstan/extension-installer": true
+            "phpro/grumphp": true
         },
         "sort-packages": true
     },
